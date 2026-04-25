@@ -37,8 +37,8 @@ export interface CourseClassResponse {
   content: CourseClass[];
   page: number;
   size: number;
-  total_elements: number;
-  total_pages: number;
+  totalElements: number;
+  totalPages: number;
   first: boolean;
   last: boolean;
 }

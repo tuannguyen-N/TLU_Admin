@@ -15,8 +15,7 @@ export function useNotificationTemplates() {
     setError(null);
     try {
       const result = await fetchNotificationTemplates({ page: pageNum, size: 10 });
-      const sorted = [...result.templates].sort((a, b) => a.name.localeCompare(b.name));
-      setTemplates(sorted);
+      setTemplates(result.templates);
       setTotalPages(result.totalPages);
       setTotalElements(result.totalElements);
     } catch (err) {

@@ -415,7 +415,7 @@ export function EditStudentCard({ student, onCancel, onSave }: Props) {
                     <Select
                       label="LOẠI THẺ"
                       required
-                      data={['CCCD', 'CMND', 'Hộ chiếu']}
+                      data={['CCCD', 'CMND']}
                       value={form.cardType}
                       onChange={val => set('cardType')(val ?? 'CCCD')}
                       classNames={{ label: classes.fieldLabel, input: classes.input }}

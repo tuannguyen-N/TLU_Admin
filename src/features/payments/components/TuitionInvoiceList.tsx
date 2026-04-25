@@ -36,9 +36,9 @@ function calculateStats(invoices: TuitionInvoice[]) {
 const statusOptions = [
   { value: '', label: 'Tất cả' },
   { value: 'PAID', label: 'Đã thanh toán' },
-  { value: 'PENDING', label: 'Chưa thanh toán' },
   { value: 'UNPAID', label: 'Chưa thanh toán' },
   { value: 'OVERDUE', label: 'Quá hạn' },
+  { value: 'CANCELLED', label: 'Đã hủy' },
 ];
 
 export function TuitionInvoiceList({
@@ -59,7 +59,10 @@ export function TuitionInvoiceList({
   onStatusChange,
 }: Props) {
   const [regeneratingId, setRegeneratingId] = useState<number | null>(null);
-  const stats = calculateStats(invoices);
+  const filteredInvoices = selectedStatus
+  ? invoices.filter(i => i.status === selectedStatus)
+  : invoices;
+  const stats = calculateStats(filteredInvoices);
 
   const handleRegenerate = async (invoiceId: number) => {
     try {
@@ -162,12 +165,12 @@ export function TuitionInvoiceList({
                 </tr>
               </thead>
               <tbody>
-                {invoices.length === 0 ? (
+                {filteredInvoices.length === 0 ? (
                   <tr>
                     <td colSpan={8} className={classes.empty}>Không tìm thấy hóa đơn nào</td>
                   </tr>
                 ) : (
-                  invoices.map((invoice) => (
+                  filteredInvoices.map((invoice) => (
                     <tr key={invoice.invoiceId} className={classes.row}>
                       <td className={classes.code}>{invoice.studentCode}</td>
                       <td>

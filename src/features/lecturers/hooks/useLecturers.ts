@@ -29,7 +29,7 @@ export function useLecturers(khoa: string = '') {
       const result = await fetchLecturersAPI({ khoa: facultyCode, page: pageNum, size: 10 });
       const activeLecturers = (result.content || []).filter((l) => l.status !== 'INACTIVE') as Lecturer[];
       setLecturers(activeLecturers);
-      setTotalPages(result.total_pages || 0);
+      setTotalPages(result.totalPages || 0);
     } catch (err) {
       console.error('[useLecturers] fetch error:', err);
       setError('Không thể tải danh sách giảng viên');

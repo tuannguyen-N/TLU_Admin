@@ -20,6 +20,7 @@ import { PaymentsPage } from '../features/payments/PaymentsPage';
 import { ExamsPage } from '../features/exams/ExamsPage';
 import { AcademicResultsPage } from '../features/academic-results/AcademicResultsPage';
 import { NotificationTemplatesPage } from '../features/notification-templates/NotificationTemplatesPage';
+import { AcademicResultDetailPage } from '../features/academic-results/components/AcademicResultDetailPage';
 
 
 export default function AppRoutes() {
@@ -47,6 +48,7 @@ export default function AppRoutes() {
       <Route path="/notification-templates" element={<NotificationTemplatesPage />} />
       <Route path="/payments" element={<ProtectedRoute><PaymentsPage /></ProtectedRoute>} />
       <Route path="/academic-results" element={<ProtectedRoute><AcademicResultsPage /></ProtectedRoute>} />
+      <Route path="/academic-results/:facultyCode/:studentId" element={<AcademicResultDetailPage />} />
       <Route path="/exams" element={<ProtectedRoute><ExamsPage /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>

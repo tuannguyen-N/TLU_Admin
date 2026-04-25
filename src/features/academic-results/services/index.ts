@@ -56,7 +56,8 @@ interface AcademicResultApiResponse {
         creditsRegistered: number;
         creditsPassed: number;
         semesterGpa: number;
-        conductScore: number;
+        conductScore?: number;
+        cumulativeGpa?: number;
       } | null;
     }[];
   }[];
@@ -69,8 +70,10 @@ interface AcademicResultsApiListResponse {
     content: AcademicResultApiResponse[];
     page: number;
     size: number;
-    totalElements: number;
-    totalPages: number;
+    totalElements?: number;
+    totalPages?: number;
+    total_elements?: number;
+    total_pages?: number;
     first: boolean;
     last: boolean;
   };
@@ -82,14 +85,14 @@ function mapApiToAcademicResult(apiResult: AcademicResultApiResponse): AcademicR
     studentCode: apiResult.studentCode,
     studentName: apiResult.studentName,
     startYear: apiResult.startYear,
-    studyPrograms: apiResult.studyPrograms.map(sp => ({
+    studyPrograms: (apiResult.studyPrograms ?? []).map(sp => ({
       majorName: sp.majorName,
       studyProgramCode: sp.studyProgramCode,
       studyProgramName: sp.studyProgramName,
-      semesterResults: sp.semesterResults.map(sr => ({
+      semesterResults: (sp.semesterResults ?? []).map(sr => ({
         semester: sr.semester,
         semesterId: sr.semesterId,
-        subjectResults: sr.subjectResults.map(sub => ({
+        subjectResults: (sr.subjectResults ?? []).map(sub => ({
           ...sub,
           semesterId: sr.semesterId,
         })),
@@ -126,14 +129,21 @@ export async function fetchAcademicResults(params: FetchAcademicResultsParams): 
 
   return {
     academicResults: response.data.content.map(mapApiToAcademicResult),
-    totalElements: response.data.totalElements,
-    totalPages: response.data.totalPages,
+    totalElements: response.data.totalElements ?? response.data.total_elements ?? 0,
+    totalPages: response.data.totalPages ?? response.data.total_pages ?? 0,
     page: response.data.page,
     size: response.data.size,
   };
 }
 
-export async function importAcademicResultsFromExcel(file: File): Promise<void> {
+interface ImportAcademicResultSummary {
+  total: number;
+  success: number;
+  failed: number;
+  errors: string[];
+}
+
+export async function importAcademicResultsFromExcel(file: File): Promise<ImportAcademicResultSummary> {
   const formData = new FormData();
   formData.append('file', file);
 
@@ -152,7 +162,7 @@ export async function importAcademicResultsFromExcel(file: File): Promise<void> 
   }
 
   const json = await response.json();
-  return json;
+  return json.data;
 }
 
 export interface AddAcademicResultPayload {
@@ -172,10 +182,10 @@ export interface AddAcademicResultPayload {
 interface AddAcademicResultResponse {
   code: number;
   message: string;
-  data: AcademicResultApiResponse;
+  data: number;
 }
 
-export async function addAcademicResult(payload: AddAcademicResultPayload): Promise<AcademicResult> {
+export async function addAcademicResult(payload: AddAcademicResultPayload): Promise<number> {
   const response = await apiClient<AddAcademicResultResponse>(
     '/academic-results/create',
     {
@@ -183,7 +193,7 @@ export async function addAcademicResult(payload: AddAcademicResultPayload): Prom
       body: JSON.stringify(payload),
     }
   );
-  return mapApiToAcademicResult(response.data);
+  return response.data;
 }
 
 // Subject API (from subjects feature, filtered by facultyId)
@@ -297,6 +307,56 @@ export async function fetchStudentByCode(studentCode: string): Promise<{ id: num
   }
 }
 
+interface StudentListApiResponse {
+  code: number;
+  message: string;
+  data: {
+    content: StudentApiResponse[];
+    page: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+    first: boolean;
+    last: boolean;
+  };
+}
+
+export interface StudentOption {
+  id: number;
+  studentCode: string;
+  fullName: string;
+}
+
+export async function fetchStudentsByKhoa(khoa: string): Promise<StudentOption[]> {
+  const size = 200;
+  let page = 0;
+  let totalPages = 1;
+  const allStudents: StudentOption[] = [];
+
+  while (page < totalPages) {
+    const response = await apiClient<StudentListApiResponse>(
+      '/students/all',
+      {
+        method: 'GET',
+        params: { khoa, page, size },
+      }
+    );
+
+    allStudents.push(
+      ...response.data.content.map((student) => ({
+        id: student.id,
+        studentCode: student.studentCode,
+        fullName: student.fullName,
+      }))
+    );
+
+    totalPages = response.data.totalPages;
+    page += 1;
+  }
+
+  return allStudents;
+}
+
 // Update academic result API
 export async function updateAcademicResultAPI(subjectResultId: number, payload: UpdateAcademicResultPayload): Promise<void> {
   const response = await apiClient<ApiResponse<null>>(
@@ -307,6 +367,18 @@ export async function updateAcademicResultAPI(subjectResultId: number, payload: 
     }
   );
   if (response.code !== 0) {
-    throw new Error(response.message || 'Cập nhật kết quả học tập thất bại');
+    throw new Error(response.message || 'Update academic result failed');
+  }
+}
+
+export async function deleteAcademicResultAPI(subjectResultId: number): Promise<void> {
+  const response = await apiClient<ApiResponse<null>>(
+    `/academic-results/delete/${subjectResultId}`,
+    {
+      method: 'POST',
+    }
+  );
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Delete academic result failed');
   }
 }

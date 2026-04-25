@@ -1,0 +1,208 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #3730a3;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.backBtn:hover {
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+}
+
+.studentCard {
+  padding: 16px;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #eff6ff, #f8fafc);
+}
+
+.title {
+  margin: 0 0 4px;
+  font-size: 30px;
+  font-weight: 900;
+  color: #1e3a8a;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  margin: 0;
+  color: #475569;
+  font-size: 14px;
+}
+
+.programFilter {
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.programSection {
+  padding: 16px;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.programTitle {
+  margin: 0 0 12px;
+  font-size: 20px;
+  font-weight: 900;
+  color: #1d4ed8;
+}
+
+.semesterBlock {
+  margin-bottom: 14px;
+}
+
+.semesterBlock:last-child {
+  margin-bottom: 0;
+}
+
+.semesterChip {
+  display: inline-block;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #1e40af;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.subjectTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.subjectTable thead tr {
+  background: #eff6ff;
+}
+
+.subjectTable th {
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.subjectTable td {
+  padding: 8px 12px;
+  color: #334155;
+  border-top: 1px solid #f1f5f9;
+}
+
+.subjectCode {
+  font-weight: 600;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.subjectName {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.passIcon {
+  color: #16a34a;
+}
+
+.failIcon {
+  color: #dc2626;
+}
+
+.semesterSummary {
+  display: flex;
+  gap: 16px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin-top: 8px;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+
+.summaryItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.summaryLabel {
+  color: #64748b;
+}
+
+.summaryValue {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.gpaValue {
+  color: #1d4ed8;
+  font-weight: 800;
+}
+
+.programFinalSummary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.finalSummaryItem {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #bfdbfe;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+}
+
+.finalSummaryLabel {
+  display: block;
+  font-size: 12px;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.finalSummaryValue {
+  display: block;
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 800;
+  color: #1e3a8a;
+}
+
+@media (max-width: 900px) {
+  .programFinalSummary {
+    grid-template-columns: 1fr;
+  }
+}

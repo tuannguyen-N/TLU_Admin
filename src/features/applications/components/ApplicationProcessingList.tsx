@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Group, ActionIcon, Tooltip, Modal, Text, Loader, Center } from '@mantine/core';
-import { IconRefresh, IconEye, IconFile, IconTrash } from '@tabler/icons-react';
+import { IconRefresh, IconEye, IconFile, IconTrash, IconFileTypePdf } from '@tabler/icons-react';
 import { useApplications } from '../hooks/useApplications';
 import { fetchApplicationDetail, updateApplicationStatus, deleteApplication } from '../services';
 import { notifications } from '@mantine/notifications';
 import type { Application, ApplicationDetail, ApplicationStatus } from '../types';
 import classes from './ApplicationProcessingList.module.css';
+
+const BASE_URL = import.meta.env.VITE_CLOUDINARY_BASE_URL;
+
 
 const statusLabels: Record<ApplicationStatus, string> = {
   PENDING: 'Chờ duyệt',
@@ -33,6 +36,10 @@ export function ApplicationProcessingList() {
   const handleRefresh = () => {
     reload();
   };
+
+  useEffect(() => {
+    console.log("BASE_URL:", import.meta.env.VITE_CLOUDINARY_BASE_URL);
+  }, []);
 
   const handleViewDetail = async (app: Application) => {
     setLoadingDetail(true);
@@ -199,13 +206,23 @@ export function ApplicationProcessingList() {
             {selectedDetail.attachments && selectedDetail.attachments.length > 0 && (
               <div className={classes.detailSection}>
                 <div className={classes.detailLabel}>File đính kèm</div>
-                {selectedDetail.attachments.map((att) => (
-                  <div key={att.id} className={classes.attachmentItem}>
-                    <IconFile size={16} />
-                    <span>{att.originalFilename}</span>
-                    <span className={classes.fileSize}>({(att.fileSize / 1024).toFixed(1)} KB)</span>
-                  </div>
-                ))}
+                {selectedDetail.attachments.map((att) => {
+                  const url = `${BASE_URL}/raw/upload/${att.fileKey}`;
+
+                  return (
+                    <a
+                      key={att.id}
+                      href={url}
+                      className={classes.attachmentItem}
+                    >
+                      <IconFileTypePdf size={16} />
+                      <span>{att.originalFilename}</span>
+                      <span className={classes.fileSize}>
+                        ({(att.fileSize / 1024).toFixed(1)} KB)
+                      </span>
+                    </a>
+                  );
+                })}
               </div>
             )}
 

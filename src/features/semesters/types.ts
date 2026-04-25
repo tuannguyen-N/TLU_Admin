@@ -18,3 +18,13 @@ export interface SemesterFormData {
   endDate: string;
   isActive: boolean;
 }
+
+export interface Faculty {
+  id: number;
+  facultyCode: string;
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+  image: string;
+}

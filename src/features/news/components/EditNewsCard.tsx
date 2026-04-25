@@ -1,10 +1,11 @@
 import {
-  TextInput, Textarea, Button, Stack, Grid, Alert, LoadingOverlay
+  TextInput, Textarea, Button, Stack, Grid, Alert, LoadingOverlay,
 } from '@mantine/core';
 import {
-  IconNews, IconX, IconDeviceFloppy
+  IconNews, IconX, IconDeviceFloppy,
+  IconPhoto
 } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { notifications } from '@mantine/notifications';
 import classes from './AddNewsCard.module.css';
 import { updateNews } from '../services';
@@ -14,6 +15,7 @@ interface ValidationErrors {
   title?: string;
   newsUrl?: string;
   source?: string;
+  publishDate?: string;
 }
 
 interface Props {
@@ -30,9 +32,23 @@ export function EditNewsCard({ news, onCancel, onSave }: Props) {
     source: news.source,
     publishDate: news.publishDate,
   });
+  const [file, setFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(news.imageUrl);
+
+
+  useEffect(() => {
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [file]);
 
   const set = (key: keyof typeof form) => (val: string) => {
     setForm(prev => ({ ...prev, [key]: val }));
@@ -53,6 +69,9 @@ export function EditNewsCard({ news, onCancel, onSave }: Props) {
     if (!form.source.trim()) {
       newErrors.source = 'Nguồn tin là bắt buộc';
     }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(form.publishDate)) {
+      newErrors.publishDate = 'Ngày phải dạng yyyy-MM-dd';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -72,7 +91,7 @@ export function EditNewsCard({ news, onCancel, onSave }: Props) {
         newsUrl: form.newsUrl.trim(),
         source: form.source.trim(),
         publishDate: form.publishDate.trim(),
-        file: null,
+        file: file,
       });
       notifications.show({
         title: 'Thành công',
@@ -160,6 +179,38 @@ export function EditNewsCard({ news, onCancel, onSave }: Props) {
                 value={form.publishDate}
                 onChange={e => set('publishDate')(e.target.value)}
                 classNames={{ label: classes.fieldLabel, input: classes.input }}
+              />
+            </Grid.Col>
+            <Grid.Col span={6}>
+              <div
+                className={classes.imageWrapper}
+                onClick={() => document.getElementById("fileInput")?.click()}
+                style={{ cursor: 'pointer' }}
+              >
+                {previewUrl ? (
+                  <img
+                    src={previewUrl}
+                    alt={news.title}
+                    className={classes.image}
+                  />
+                ) : (
+                  <div className={classes.placeholder}>
+                    <IconPhoto size={48} />
+                  </div>
+                )}
+              </div>
+
+              <input
+                id="fileInput"
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) setFile(f);
+
+                  e.target.value = '';
+                }}
               />
             </Grid.Col>
           </Grid>

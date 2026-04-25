@@ -17,7 +17,8 @@ export interface SemesterSummary {
   creditsRegistered: number;
   creditsPassed: number;
   semesterGpa: number;
-  conductScore: number;
+  conductScore?: number;
+  cumulativeGpa?: number;
 }
 
 export interface SemesterResult {
@@ -43,12 +44,12 @@ export interface AcademicResult {
 }
 
 export interface UpdateAcademicResultPayload {
-  semesterId: number;
-  attendanceScore: number;
-  midtermScore: number;
-  finalScore: number;
-  score10: number;
-  score4: number;
-  letterGrade: string;
-  isPass: boolean;
+  semesterId?: number;
+  attendanceScore?: number;
+  midtermScore?: number;
+  finalScore?: number;
+  score10?: number;
+  score4?: number;
+  letterGrade?: string;
+  isPass?: boolean;
 }

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { NumberInput, Button, Grid, Alert } from '@mantine/core';
 import { IconX, IconDeviceFloppy } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import { calculateLetterGrade, calculateScore4, fetchSemesters } from '../services';
+import { calculateLetterGrade, calculateScore4, updateAcademicResultAPI } from '../services';
 import type { SubjectResult } from '../types';
 import classes from './EditAcademicResultCard.module.css';
 
@@ -13,7 +13,7 @@ interface Props {
   onSave: () => void;
 }
 
-export function EditAcademicResultCard({ subjectResult, semesterName, onCancel, onSave }: Props) {
+export function EditAcademicResultCard({ subjectResult, onCancel, onSave }: Props) {
   const [form, setForm] = useState({
     attendanceScore: subjectResult.attendanceScore,
     midtermScore: subjectResult.midtermScore,
@@ -26,62 +26,35 @@ export function EditAcademicResultCard({ subjectResult, semesterName, onCancel, 
   const score4 = calculateScore4(score10);
   const { letterGrade, isPass } = calculateLetterGrade(score10);
 
-  const getSemesterId = async (): Promise<number | null> => {
-    try {
-      const semesters = await fetchSemesters();
-      const matched = semesters.find(s => s.semesterName === semesterName);
-      return matched?.id ?? null;
-    } catch {
-      return null;
-    }
-  };
-
   const handleSave = async () => {
+    if (!subjectResult.id) {
+      setApiError('Không tìm thấy ID kết quả học tập để cập nhật');
+      return;
+    }
+
     setLoading(true);
     setApiError(null);
 
     try {
-      const semesterId = await getSemesterId();
-      if (!semesterId) {
-        setApiError('Không tìm thấy học kỳ');
-        setLoading(false);
-        return;
-      }
+      await updateAcademicResultAPI(subjectResult.id, {
+        semesterId: subjectResult.semesterId,
+        attendanceScore: form.attendanceScore,
+        midtermScore: form.midtermScore,
+        finalScore: form.finalScore,
+        score10: Math.round(score10 * 100) / 100,
+        score4: Math.round(score4 * 100) / 100,
+        letterGrade,
+        isPass,
+      });
 
-      const response = await fetch(
-        `${import.meta.env.VITE_API_DOMAIN || ''}/api/v1/admin/academic-results/update/${subjectResult.id}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInJvbGVzIjpudWxsLCJzaWduIjpudWxsLCJpYXQiOjE3NzU3OTMxNTc1NzksImV4cCI6MTc3NTc5Njc1NzU3OX0.OcuqDvFuHymaB9AB9bHgaAGY04DlYL6pUjKqJWMb328`,
-          },
-          body: JSON.stringify({
-            semesterId: semesterId,
-            attendanceScore: form.attendanceScore,
-            midtermScore: form.midtermScore,
-            finalScore: form.finalScore,
-            score10: Math.round(score10 * 100) / 100,
-            score4: Math.round(score4 * 100) / 100,
-            letterGrade,
-            isPass,
-          }),
-        }
-      );
-
-      const json = await response.json();
-      if (response.ok && json.code === 0) {
-        notifications.show({
-          title: 'Thành công',
-          message: 'Cập nhật điểm thành công',
-          color: 'green',
-        });
-        onSave();
-      } else {
-        setApiError(json.message || 'Cập nhật điểm thất bại');
-      }
+      notifications.show({
+        title: 'Thành công',
+        message: 'Cập nhật điểm thành công',
+        color: 'green',
+      });
+      onSave();
     } catch (err) {
-      setApiError('Đã xảy ra lỗi khi cập nhật điểm');
+      setApiError(err instanceof Error ? err.message : 'Đã xảy ra lỗi khi cập nhật điểm');
     } finally {
       setLoading(false);
     }
@@ -103,7 +76,7 @@ export function EditAcademicResultCard({ subjectResult, semesterName, onCancel, 
               label="ĐIỂM CHUYÊN CẦN (10%)"
               placeholder="0 - 10"
               value={form.attendanceScore}
-              onChange={(val) => setForm(prev => ({ ...prev, attendanceScore: typeof val === 'number' ? val : 0 }))}
+              onChange={(val) => setForm((prev) => ({ ...prev, attendanceScore: typeof val === 'number' ? val : 0 }))}
               min={0}
               max={10}
               decimalScale={2}
@@ -116,7 +89,7 @@ export function EditAcademicResultCard({ subjectResult, semesterName, onCancel, 
               label="ĐIỂM GIỮA KỲ (30%)"
               placeholder="0 - 10"
               value={form.midtermScore}
-              onChange={(val) => setForm(prev => ({ ...prev, midtermScore: typeof val === 'number' ? val : 0 }))}
+              onChange={(val) => setForm((prev) => ({ ...prev, midtermScore: typeof val === 'number' ? val : 0 }))}
               min={0}
               max={10}
               decimalScale={2}
@@ -129,7 +102,7 @@ export function EditAcademicResultCard({ subjectResult, semesterName, onCancel, 
               label="ĐIỂM CUỐI KỲ (60%)"
               placeholder="0 - 10"
               value={form.finalScore}
-              onChange={(val) => setForm(prev => ({ ...prev, finalScore: typeof val === 'number' ? val : 0 }))}
+              onChange={(val) => setForm((prev) => ({ ...prev, finalScore: typeof val === 'number' ? val : 0 }))}
               min={0}
               max={10}
               decimalScale={2}

@@ -1,11 +1,17 @@
-import { useState, useEffect } from 'react';
-import { TextInput, NumberInput, Button, Grid, Alert, Select, Loader, Center } from '@mantine/core';
-import { IconAward, IconAlertCircle, IconDeviceFloppy, IconX, IconSearch } from '@tabler/icons-react';
+﻿import { useEffect, useState } from 'react';
+import { NumberInput, Button, Grid, Alert, Select, Loader, Center } from '@mantine/core';
+import { IconAward, IconDeviceFloppy, IconX } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import { addAcademicResult, fetchSubjectsByFaculty, fetchSemesters, fetchStudentByCode } from '../services';
+import {
+  addAcademicResult,
+  fetchSubjectsByFaculty,
+  fetchSemesters,
+  fetchStudentsByKhoa,
+} from '../services';
 import { fetchFaculties } from '../../subjects/services';
 import type { Subject } from '../../subjects/types';
 import type { Semester } from '../../semesters/types';
+import type { StudentOption } from '../services';
 import classes from './AddAcademicResultCard.module.css';
 
 interface Props {
@@ -15,7 +21,7 @@ interface Props {
 }
 
 interface ValidationErrors {
-  studentCode?: string;
+  studentId?: string;
   subjectId?: string;
   semesterId?: string;
   attendanceScore?: string;
@@ -60,7 +66,7 @@ function computeIsPass(score10: number): boolean {
 
 export function AddAcademicResultCard({ onCancel, onSave, khoa }: Props) {
   const [form, setForm] = useState({
-    studentCode: '',
+    studentId: null as number | null,
     subjectId: null as number | null,
     semesterId: null as number | null,
     credits: 0,
@@ -74,94 +80,78 @@ export function AddAcademicResultCard({ onCancel, onSave, khoa }: Props) {
 
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [semesters, setSemesters] = useState<Semester[]>([]);
-  const [facultyId, setFacultyId] = useState<number | null>(null);
+  const [students, setStudents] = useState<StudentOption[]>([]);
   const [loadingData, setLoadingData] = useState(false);
 
-  const [foundStudent, setFoundStudent] = useState<{ id: number; studentCode: string; fullName: string } | null>(null);
-  const [searchingStudent, setSearchingStudent] = useState(false);
-
-  // Compute derived values
   const score10 = computeScore10(form.attendanceScore, form.midtermScore, form.finalScore);
   const score4 = computeScore4(score10);
   const letterGrade = computeLetterGrade(score10);
   const isPass = computeIsPass(score10);
 
-  // Load facultyId from khoa, then subjects and semesters
   useEffect(() => {
-    setLoadingData(true);
-    fetchFaculties()
-      .then((faculties) => {
-        const fac = faculties.find(f => f.value === khoa);
-        return fac ? fac.id : null;
-      })
-      .then((fId) => {
-        setFacultyId(fId);
-        return fetchSemesters();
-      })
-      .then((sems) => {
+    let cancelled = false;
+
+    const loadOptions = async () => {
+      setLoadingData(true);
+      try {
+        const [faculties, sems, studentsByKhoa] = await Promise.all([
+          fetchFaculties(),
+          fetchSemesters(),
+          fetchStudentsByKhoa(khoa),
+        ]);
+
+        if (cancelled) return;
+
         setSemesters(sems);
-        return facultyId != null ? fetchSubjectsByFaculty(facultyId) : [];
-      })
-      .then((subs) => {
-        if (facultyId != null) setSubjects(subs);
-      })
-      .catch((err) => console.error('[AddAcademicResultCard] load error:', err))
-      .finally(() => setLoadingData(false));
+        setStudents(studentsByKhoa);
+
+        const facultyId = faculties.find((faculty) => faculty.value === khoa)?.id ?? null;
+        if (facultyId != null) {
+          const subs = await fetchSubjectsByFaculty(facultyId);
+          if (!cancelled) setSubjects(subs);
+        } else {
+          setSubjects([]);
+        }
+      } catch (err) {
+        console.error('[AddAcademicResultCard] load error:', err);
+      } finally {
+        if (!cancelled) setLoadingData(false);
+      }
+    };
+
+    loadOptions();
+
+    return () => {
+      cancelled = true;
+    };
   }, [khoa]);
 
-  // Refetch subjects when facultyId is available
-  useEffect(() => {
-    if (facultyId == null) return;
-    fetchSubjectsByFaculty(facultyId)
-      .then(setSubjects)
-      .catch((err) => console.error('[AddAcademicResultCard] fetch subjects error:', err));
-  }, [facultyId]);
-
   const set = (key: keyof typeof form) => (val: any) => {
-    setForm(prev => ({ ...prev, [key]: val }));
+    setForm((prev) => ({ ...prev, [key]: val }));
     if (errors[key as keyof ValidationErrors]) {
-      setErrors(prev => ({ ...prev, [key]: undefined }));
+      setErrors((prev) => ({ ...prev, [key]: undefined }));
     }
   };
 
   const handleSubjectChange = (subjectId: string | null) => {
-    const id = subjectId ? parseInt(subjectId) : null;
+    const id = subjectId ? parseInt(subjectId, 10) : null;
     set('subjectId')(id);
+
     if (id) {
-      const subject = subjects.find(s => s.id === id);
+      const subject = subjects.find((s) => s.id === id);
       if (subject) {
-        setForm(prev => ({ ...prev, subjectId: id, credits: subject.credits }));
+        setForm((prev) => ({ ...prev, subjectId: id, credits: subject.credits }));
       }
     } else {
-      setForm(prev => ({ ...prev, subjectId: null, credits: 0 }));
-    }
-  };
-
-  const handleSearchStudent = async () => {
-    if (!form.studentCode.trim()) {
-      setErrors(prev => ({ ...prev, studentCode: 'Mã sinh viên là bắt buộc' }));
-      return;
-    }
-    setSearchingStudent(true);
-    setFoundStudent(null);
-    try {
-      const student = await fetchStudentByCode(form.studentCode.trim());
-      if (student) {
-        setFoundStudent(student);
-      } else {
-        setErrors(prev => ({ ...prev, studentCode: 'Không tìm thấy sinh viên với mã này' }));
-      }
-    } catch {
-      setErrors(prev => ({ ...prev, studentCode: 'Lỗi khi tìm kiếm sinh viên' }));
-    } finally {
-      setSearchingStudent(false);
+      setForm((prev) => ({ ...prev, subjectId: null, credits: 0 }));
     }
   };
 
   const validate = (): boolean => {
     const newErrors: ValidationErrors = {};
-    if (!foundStudent) {
-      newErrors.studentCode = 'Vui lòng tìm sinh viên trước';
+
+    if (!form.studentId) {
+      newErrors.studentId = 'Sinh viên là bắt buộc';
     }
     if (!form.subjectId) {
       newErrors.subjectId = 'Môn học là bắt buộc';
@@ -181,18 +171,19 @@ export function AddAcademicResultCard({ onCancel, onSave, khoa }: Props) {
     if (form.finalScore < 0 || form.finalScore > 10) {
       newErrors.finalScore = 'Điểm phải từ 0 đến 10';
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSave = async () => {
-    if (!validate() || !foundStudent) return;
+    if (!validate()) return;
 
     setLoading(true);
     setApiError(null);
 
     const payload = {
-      studentId: foundStudent.id,
+      studentId: form.studentId!,
       subjectId: form.subjectId!,
       semesterId: form.semesterId!,
       credits: form.credits,
@@ -228,14 +219,19 @@ export function AddAcademicResultCard({ onCancel, onSave, khoa }: Props) {
     );
   }
 
-  const semesterOptions = semesters.map(s => ({
+  const semesterOptions = semesters.map((s) => ({
     value: String(s.id),
     label: s.semesterName,
   }));
 
-  const subjectOptions = subjects.map(s => ({
+  const subjectOptions = subjects.map((s) => ({
     value: String(s.id),
     label: `${s.subjectCode} - ${s.subjectName}`,
+  }));
+
+  const studentOptions = students.map((student) => ({
+    value: String(student.id),
+    label: `${student.studentCode} - ${student.fullName}`,
   }));
 
   return (
@@ -243,36 +239,22 @@ export function AddAcademicResultCard({ onCancel, onSave, khoa }: Props) {
       <div className={classes.section}>
         <SectionTitle icon={IconAward} number={1} title="Thông tin sinh viên" />
         <Grid>
-          <Grid.Col span={8}>
-            <TextInput
-              label="MÃ SINH VIÊN"
+          <Grid.Col span={12}>
+            <Select
+              label="SINH VIÊN"
               required
-              placeholder="A45033"
-              value={form.studentCode}
-              onChange={e => {
-                set('studentCode')(e.target.value);
-                setFoundStudent(null);
-              }}
-              error={errors.studentCode}
-              classNames={{ label: classes.fieldLabel, input: classes.input }}
+              placeholder="Chọn sinh viên"
+              searchable
+              nothingFoundMessage="Không tìm thấy sinh viên"
+              data={studentOptions}
+              value={form.studentId ? String(form.studentId) : null}
+              onChange={(value) => set('studentId')(value ? parseInt(value, 10) : null)}
+              error={errors.studentId}
+              classNames={{ label: classes.fieldLabel }}
+              className={classes.selectInput}
             />
           </Grid.Col>
-          <Grid.Col span={4}>
-            <Button
-              leftSection={searchingStudent ? <Loader size={14} /> : <IconSearch size={16} />}
-              onClick={handleSearchStudent}
-              mt={28}
-              style={{ backgroundColor: '#1a2b5e', color: '#fff', height: 36 }}
-            >
-              Tìm kiếm
-            </Button>
-          </Grid.Col>
         </Grid>
-        {foundStudent && (
-          <div className={classes.studentInfo}>
-            <strong>Tìm thấy:</strong> {foundStudent.fullName} ({foundStudent.studentCode})
-          </div>
-        )}
       </div>
 
       <div className={classes.section}>
@@ -302,7 +284,7 @@ export function AddAcademicResultCard({ onCancel, onSave, khoa }: Props) {
               nothingFoundMessage="Không tìm thấy học kỳ"
               data={semesterOptions}
               value={form.semesterId ? String(form.semesterId) : null}
-              onChange={val => set('semesterId')(val ? parseInt(val) : null)}
+              onChange={(val) => set('semesterId')(val ? parseInt(val, 10) : null)}
               error={errors.semesterId}
               classNames={{ label: classes.fieldLabel }}
               className={classes.selectInput}
@@ -314,7 +296,7 @@ export function AddAcademicResultCard({ onCancel, onSave, khoa }: Props) {
               required
               placeholder="3"
               value={form.credits}
-              onChange={val => set('credits')(typeof val === 'number' ? val : 0)}
+              onChange={(val) => set('credits')(typeof val === 'number' ? val : 0)}
               min={1}
               max={20}
               error={errors.credits}
@@ -333,7 +315,7 @@ export function AddAcademicResultCard({ onCancel, onSave, khoa }: Props) {
               required
               placeholder="0 - 10"
               value={form.attendanceScore}
-              onChange={val => set('attendanceScore')(typeof val === 'number' ? val : 0)}
+              onChange={(val) => set('attendanceScore')(typeof val === 'number' ? val : 0)}
               min={0}
               max={10}
               decimalScale={2}
@@ -348,7 +330,7 @@ export function AddAcademicResultCard({ onCancel, onSave, khoa }: Props) {
               required
               placeholder="0 - 10"
               value={form.midtermScore}
-              onChange={val => set('midtermScore')(typeof val === 'number' ? val : 0)}
+              onChange={(val) => set('midtermScore')(typeof val === 'number' ? val : 0)}
               min={0}
               max={10}
               decimalScale={2}
@@ -363,7 +345,7 @@ export function AddAcademicResultCard({ onCancel, onSave, khoa }: Props) {
               required
               placeholder="0 - 10"
               value={form.finalScore}
-              onChange={val => set('finalScore')(typeof val === 'number' ? val : 0)}
+              onChange={(val) => set('finalScore')(typeof val === 'number' ? val : 0)}
               min={0}
               max={10}
               decimalScale={2}
@@ -416,7 +398,7 @@ export function AddAcademicResultCard({ onCancel, onSave, khoa }: Props) {
           className={classes.cancelBtn}
           disabled={loading}
         >
-          Huỷ
+          Hủy
         </Button>
         <Button
           leftSection={<IconDeviceFloppy size={16} />}

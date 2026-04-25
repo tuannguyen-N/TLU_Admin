@@ -46,7 +46,7 @@ export function useCourseClasses(khoa: string = '') {
       // Filter out inactive course classes
       const activeClasses = (result.content || []).filter((c: CourseClass) => c.isActive !== false);
       setCourseClasses(activeClasses);
-      setTotalPages(result.total_pages || 0);
+      setTotalPages(result.totalPages || 0);
     } catch (err) {
       console.error('[useCourseClasses] fetch error:', err);
       setError('Không thể tải danh sách lớp học phần');

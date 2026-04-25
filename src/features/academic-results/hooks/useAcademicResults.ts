@@ -15,7 +15,7 @@ export function useAcademicResults(khoa: string = '') {
 
   useEffect(() => {
     fetchFaculties()
-      .then((data) => setFaculties(data))
+      .then((data) => setFaculties(data.filter((faculty) => faculty.value !== 'PDT')))
       .catch((err) => console.error('[useAcademicResults] fetch faculties error:', err));
   }, []);
 
@@ -37,6 +37,15 @@ export function useAcademicResults(khoa: string = '') {
   }, []);
 
   useEffect(() => {
+    if (!khoa) {
+      setAcademicResults([]);
+      setTotalPages(0);
+      setTotalElements(0);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     loadAcademicResults(khoa, page);
   }, [khoa, page, loadAcademicResults]);
 

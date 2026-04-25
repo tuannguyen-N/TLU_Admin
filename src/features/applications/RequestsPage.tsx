@@ -1,8 +1,11 @@
 import { ApplicationTypeList } from './components/ApplicationTypeList';
 import { ApplicationProcessingList } from './components/ApplicationProcessingList';
 import classes from './RequestsPage.module.css';
+import { useState } from 'react';
 
 export function RequestsPage() {
+  const [tab, setTab] = useState("process");
+
   return (
     <div className={classes.page}>
       <div className={classes.pageHeader}>
@@ -12,9 +15,25 @@ export function RequestsPage() {
         </p>
       </div>
 
-      <div className={classes.layout}>
-        <ApplicationTypeList />
-        <ApplicationProcessingList />
+      <div className={classes.tabs}>
+        <button
+          className={`${classes.tab} ${tab === "process" ? classes.active : ""}`}
+          onClick={() => setTab("process")}
+        >
+          Xử lý đơn
+        </button>
+        <button
+          className={`${classes.tab} ${tab === "type" ? classes.active : ""}`}
+          onClick={() => setTab("type")}
+        >
+          Loại đơn
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className={classes.content}>
+        {tab === "type" && <ApplicationTypeList />}
+        {tab === "process" && <ApplicationProcessingList />}
       </div>
     </div>
   );

@@ -2,9 +2,10 @@ import {
   TextInput, Textarea, Button, Stack, Grid, Alert, LoadingOverlay, FileInput, Image
 } from '@mantine/core';
 import {
-  IconNews, IconX, IconDeviceFloppy, IconUpload
+  IconNews, IconX, IconDeviceFloppy, IconUpload,
+  IconPhoto
 } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { notifications } from '@mantine/notifications';
 import classes from './AddNewsCard.module.css';
 import { createNews } from '../services';
@@ -32,6 +33,21 @@ export function AddNewsCard({ onCancel, onSave }: Props) {
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl(null);
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [file]);
 
   const set = (key: keyof typeof form) => (val: string) => {
     setForm(prev => ({ ...prev, [key]: val }));
@@ -161,16 +177,38 @@ export function AddNewsCard({ onCancel, onSave }: Props) {
               />
             </Grid.Col>
             <Grid.Col span={6}>
-              <FileInput
-                label="ẢNH"
-                placeholder="Chọn file ảnh"
-                leftSection={<IconUpload size={16} />}
-                accept="image/*"
-                value={file}
-                onChange={setFile}
-                classNames={{ label: classes.fieldLabel, input: classes.input }}
-              />
-            </Grid.Col>
+            <div
+              className={classes.imageWrapper}
+              onClick={() => document.getElementById("fileInput")?.click()}
+              style={{ cursor: 'pointer' }}
+            >
+              {previewUrl ? (
+                <img
+                  src={previewUrl}
+                  alt="preview"
+                  className={classes.image}
+                />
+              ) : (
+                <div className={classes.placeholder}>
+                  <IconPhoto size={48} />
+                  <div>Chọn ảnh</div>
+                </div>
+              )}
+            </div>
+
+            <input
+              id="fileInput"
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) setFile(f); // luôn chỉ lấy 1 file
+
+                e.target.value = ''; // reset để chọn lại cùng file vẫn trigger
+              }}
+            />
+          </Grid.Col>
           </Grid>
         </div>
       </Stack>

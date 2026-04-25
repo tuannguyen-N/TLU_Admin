@@ -101,7 +101,9 @@ export async function createNews(payload: CreateNewsPayload): Promise<News> {
   });
 
   if (!response.ok) {
-    throw new Error(`Failed: ${response.status}`);
+    const errorText = await response.text();
+    const err = JSON.parse(errorText);
+    throw new Error(err.message);
   }
 
   const json = await response.json();
@@ -138,19 +140,24 @@ export interface UpdateNewsPayload {
 interface UpdateNewsResponse {
   code: number;
   message: string;
-  data: NewsApiResponse | null;
+  data: null;
 }
 
-export async function updateNews(newsId: number, payload: UpdateNewsPayload): Promise<News> {
-  const response = await apiClient<UpdateNewsResponse>(
+export async function updateNews(newsId: number, payload: UpdateNewsPayload): Promise<void> {
+  const formData = new FormData();
+
+  formData.append("title", payload.title ?? "");
+  formData.append("excerpt", payload.excerpt ?? "");
+  formData.append("newsUrl", payload.newsUrl ?? "");
+  formData.append("source", payload.source ?? "");
+  formData.append("publishDate", payload.publishDate ?? "");
+  if (payload.file) formData.append('file', payload.file);
+
+  await apiClient<UpdateNewsResponse>(
     `/news/update/${newsId}`,
     {
       method: 'POST',
-      body: JSON.stringify(payload),
+      body: formData,
     }
   );
-  if (!response.data) {
-    throw new Error('Không nhận được dữ liệu từ server');
-  }
-  return mapApiToNews(response.data);
 }

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Modal } from '@mantine/core';
 import {
   IconCode, IconBuildingBank, IconHeartbeat,
@@ -33,10 +34,11 @@ const colorMap: Record<string, string> = {
   KDL: '#00715f',
   KTT: '#be4510',
   KAN: '#8B5CF6',
-  PDT: '#6B7280',
 };
 
 export function AcademicResultsPage() {
+  const location = useLocation();
+  const locationState = (location.state ?? {}) as { selectedFaculty?: FacultyOption };
   const [selectedFaculty, setSelectedFaculty] = useState<FacultyOption | null>(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
@@ -51,9 +53,13 @@ export function AcademicResultsPage() {
     totalElements,
     faculties,
     reload,
-    handleAddResult,
-    handleImportExcel,
   } = useAcademicResults(selectedFaculty?.value ?? '');
+
+  useEffect(() => {
+    if (locationState.selectedFaculty && !selectedFaculty) {
+      setSelectedFaculty(locationState.selectedFaculty);
+    }
+  }, [locationState.selectedFaculty, selectedFaculty]);
 
   const handleFacultySelect = (faculty: FacultyOption) => {
     setSelectedFaculty(faculty);

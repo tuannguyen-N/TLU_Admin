@@ -8,8 +8,8 @@ interface NotificationTemplateApiListResponse {
     content: NotificationTemplate[];
     page: number;
     size: number;
-    total_elements: number;
-    total_pages: number;
+    totalElements: number;
+    totalPages: number;
     first: boolean;
     last: boolean;
   };
@@ -47,8 +47,8 @@ export async function fetchNotificationTemplates(params: { page?: number; size?:
   });
   return {
     templates: response.data.content,
-    totalElements: response.data.total_elements,
-    totalPages: response.data.total_pages,
+    totalElements: response.data.totalElements,
+    totalPages: response.data.totalPages,
     page: response.data.page,
     size: response.data.size,
   };

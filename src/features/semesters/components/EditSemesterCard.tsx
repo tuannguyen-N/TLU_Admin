@@ -105,8 +105,6 @@ export function EditSemesterCard({ semester, onCancel, onSave }: Props) {
 
         if (!form.semesterCode.trim()) {
             newErrors.semesterCode = 'Mã học kỳ là bắt buộc';
-        } else if (!/^[A-Z0-9_]+$/.test(form.semesterCode.trim())) {
-            newErrors.semesterCode = 'Mã học kỳ chỉ chứa chữ hoa, số và dấu _';
         }
 
         if (!form.semesterName.trim()) {

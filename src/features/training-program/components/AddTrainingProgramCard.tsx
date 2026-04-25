@@ -212,6 +212,7 @@ export function AddTrainingProgramCard({ khoa = 'CNTT', onCancel, onSave }: Prop
                 required
                 data={[
                   { value: 'CHINH_QUY', label: 'Chính quy' },
+                  { value: 'LIEN_THONG', label: 'Liên thông' },
                 ]}
                 value={form.trainingType}
                 onChange={val => set('trainingType')(val ?? 'CHINH_QUY')}
