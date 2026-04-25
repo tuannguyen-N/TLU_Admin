@@ -1,0 +1,287 @@
+.page {
+  padding: 0px;
+  max-width: 1400px;
+}
+
+.pageHeader {
+  margin-bottom: 32px;
+}
+
+.pageTitle {
+  font-size: 28px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 8px;
+}
+
+.pageDesc {
+  font-size: 15px;
+  color: #6B7280;
+  margin: 0;
+  max-width: 480px;
+  line-height: 1.6;
+}
+
+/* Two Column Layout */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Section Card */
+.sectionCard {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #f9fafb;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.sectionActions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Table */
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table thead tr {
+  background: #f9fafb;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.row {
+  border-bottom: 1px solid #f9fafb;
+  transition: background 0.12s;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row:hover {
+  background: #f9fafb;
+}
+
+.table td {
+  padding: 12px 16px;
+  color: #374151;
+  vertical-align: middle;
+}
+
+/* Status Badge */
+.statusBadge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.statusPending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.statusApproved {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.statusRejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Actions */
+.actionsCell {
+  width: 120px;
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* Empty */
+.empty {
+  text-align: center;
+  padding: 48px 0 !important;
+  color: #9CA3AF;
+  font-size: 14px;
+}
+
+/* Pagination */
+.paginationWrapper {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+/* Modal Content */
+.detailModal {
+  padding: 24px;
+}
+
+.detailHeader {
+  margin-bottom: 24px;
+}
+
+.detailTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 8px;
+}
+
+.detailMeta {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: #6B7280;
+}
+
+.detailSection {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.detailLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.detailValue {
+  font-size: 14px;
+  color: #111827;
+  line-height: 1.5;
+}
+
+.attachmentItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #374151;
+}
+
+/* Search Input */
+.searchRow {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.searchInput {
+  width: 100%;
+}
+
+/* Loading */
+.loadingCenter {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+/* Form Styles */
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.formGridFull {
+  grid-column: span 2;
+}
+
+@media (max-width: 640px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+  .formGridFull {
+    grid-column: span 1;
+  }
+}
+
+/* Status Selector */
+.statusSelector {
+  display: flex;
+  gap: 8px;
+}
+
+.statusOption {
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.statusOption:hover {
+  background: #f3f4f6;
+}
+
+.statusOptionActive {
+  border-color: #1a2b5e;
+  background: #eef2ff;
+}
+
+/* Type Code Badge */
+.typeCode {
+  font-family: monospace;
+  font-size: 12px;
+  padding: 2px 6px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  color: #374151;
+}

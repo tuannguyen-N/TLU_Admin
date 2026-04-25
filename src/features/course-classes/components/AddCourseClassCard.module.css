@@ -1,0 +1,122 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 32px;
+  background: #f5f6fa;
+}
+
+/* Header */
+.pageHeader {
+  margin-bottom: 4px;
+}
+
+.pageTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 6px;
+  letter-spacing: -0.5px;
+}
+
+.pageSubtitle {
+  font-size: 14px;
+  color: #6B7280;
+  margin: 0;
+}
+
+/* Section Card */
+.section {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.sectionIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sectionNum {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.sectionText {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Field Label */
+.fieldLabel {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #6B7280 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 6px !important;
+}
+
+/* Input */
+.input {
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  color: #111827 !important;
+  background: #fff !important;
+  transition: border-color 0.15s !important;
+}
+
+.input:focus {
+  border-color: #3B82F6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-top: 8px;
+  padding-bottom: 16px;
+}
+
+.cancelBtn {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #374151 !important;
+  padding: 10px 20px !important;
+  border-radius: 8px !important;
+}
+
+.saveBtn {
+  background: #111827 !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  padding: 10px 24px !important;
+  border-radius: 8px !important;
+  transition: background 0.15s !important;
+}
+
+.saveBtn:hover {
+  background: #1f2937 !important;
+}

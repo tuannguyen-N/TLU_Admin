@@ -1,0 +1,86 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px;
+  min-height: 100vh;
+  background: #f5f6fa;
+}
+
+.pageHeader {
+  margin-bottom: 0;
+}
+
+.pageTitle {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1a2b5e;
+  margin: 0 0 6px;
+  letter-spacing: -0.5px;
+}
+
+.pageDesc {
+  font-size: 14px;
+  color: #6B7280;
+  margin: 0;
+}
+
+.facultyGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.facultyCard {
+  background: #fff;
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.facultyCard:hover {
+  border-color: #1a2b5e;
+  box-shadow: 0 4px 12px rgba(26, 43, 94, 0.08);
+  transform: translateY(-2px);
+}
+
+.facultyIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.facultyIcon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.facultyInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.facultyName {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px;
+}
+
+.facultyDesc {
+  font-size: 13px;
+  color: #6B7280;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

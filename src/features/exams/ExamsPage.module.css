@@ -1,0 +1,23 @@
+.page {
+  padding: 0px;
+  max-width: 1200px;
+}
+
+.pageHeader {
+  margin-bottom: 32px;
+}
+
+.pageTitle {
+  font-size: 28px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 8px;
+}
+
+.pageSubtitle {
+  font-size: 15px;
+  color: #6B7280;
+  margin: 0;
+  max-width: 480px;
+  line-height: 1.6;
+}

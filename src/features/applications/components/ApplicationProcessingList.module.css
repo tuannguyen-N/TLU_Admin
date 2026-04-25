@@ -1,0 +1,243 @@
+.card {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #f9fafb;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table thead tr {
+  background: #f9fafb;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6B7280;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.row {
+  border-bottom: 1px solid #f9fafb;
+  transition: background 0.12s;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row:hover {
+  background: #f9fafb;
+}
+
+.table td {
+  padding: 10px 14px;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.actionsCol {
+  width: 80px;
+}
+
+.studentName {
+  font-weight: 600;
+  color: #111827;
+}
+
+.studentCode {
+  font-family: monospace;
+  font-size: 13px;
+  color: #6B7280;
+}
+
+.typeName {
+  font-size: 13px;
+  color: #374151;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.statusPending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.statusApproved {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.statusRejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.empty {
+  text-align: center;
+  padding: 32px 0 !important;
+  color: #9CA3AF;
+  font-size: 14px;
+}
+
+.paginationWrapper {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+/* Detail Modal */
+.detailModal {
+  padding: 8px 0;
+}
+
+.detailHeader {
+  margin-bottom: 20px;
+}
+
+.detailTitle {
+  font-size: 22px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 8px;
+}
+
+.detailMeta {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  color: #6B7280;
+}
+
+.detailSection {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.detailLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.detailValue {
+  font-size: 14px;
+  color: #111827;
+  line-height: 1.6;
+}
+
+.attachmentItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.attachmentItem:last-child {
+  margin-bottom: 0;
+}
+
+.fileSize {
+  color: #9CA3AF;
+  font-size: 12px;
+  margin-left: auto;
+}
+
+/* Status Update Section */
+.statusSection {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.statusUpdateSection {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.statusButtons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.statusBtn {
+  padding: 8px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: #fff;
+  color: #374151;
+}
+
+.statusBtn:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.statusBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.statusBtnActive {
+  border-color: #1a2b5e;
+  background: #eef2ff;
+  color: #1a2b5e;
+}
+
+.statusBtnActive:hover:not(:disabled) {
+  background: #e0e6ff;
+}
