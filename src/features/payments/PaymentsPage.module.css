@@ -17,6 +17,10 @@
   margin: 0;
 }
 
+.tabsList {
+  margin-bottom: 4px;
+}
+
 .semesterGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

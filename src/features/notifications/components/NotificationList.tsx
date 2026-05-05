@@ -120,6 +120,7 @@ export function NotificationList({
                   <th>Nội dung</th>
                   <th>Loại</th>
                   <th>Hạn chót</th>
+                  <th>Liên quan</th>
                   <th>Quan trọng</th>
                   <th className={classes.actionsCol}>Hành động</th>
                 </tr>
@@ -127,7 +128,7 @@ export function NotificationList({
               <tbody>
                 {notifications.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className={classes.empty}>Không tìm thấy thông báo nào</td>
+                    <td colSpan={7} className={classes.empty}>Không tìm thấy thông báo nào</td>
                   </tr>
                 ) : (
                   notifications.map((notification) => {
@@ -138,6 +139,7 @@ export function NotificationList({
                         <td><Text size="sm" c="dimmed" lineClamp={1}>{notification.content}</Text></td>
                         <td><Badge color={targetInfo.color} size="sm">{targetInfo.label}</Badge></td>
                         <td><Text size="sm">{notification.deadLine || '-'}</Text></td>
+                        <td><Text size="sm">{notification.referenceType || '-'}</Text></td>
                         <td>
                           {notification.isImportant ? (
                             <Text size="md" c="red" fw={700}>✓</Text>

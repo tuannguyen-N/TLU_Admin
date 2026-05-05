@@ -7,6 +7,7 @@ export interface Notification {
   targetIds: number[];
   deadLine: string | null;
   isImportant: boolean;
+  referenceType: string | null;
 }
 
 export interface NotificationFormData {
@@ -18,6 +19,7 @@ export interface NotificationFormData {
   createdBy?: string;
   deadLine: string | null;
   isImportant: boolean;
+  referenceType: string | null;
 }
 
 export interface FetchNotificationsParams {

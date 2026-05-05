@@ -17,6 +17,8 @@ import { NewsPage } from '../features/news/NewsPage';
 import { RequestsPage } from '../features/applications/RequestsPage';
 import { NotificationsPage } from '../features/notifications/NotificationsPage';
 import { PaymentsPage } from '../features/payments/PaymentsPage';
+import { DocumentsPage } from '../features/documents/DocumentsPage';
+import { EnrollmentPeriodsPage } from '../features/enrollment/EnrollmentPeriodsPage';
 import { ExamsPage } from '../features/exams/ExamsPage';
 import { AcademicResultsPage } from '../features/academic-results/AcademicResultsPage';
 import { NotificationTemplatesPage } from '../features/notification-templates/NotificationTemplatesPage';
@@ -47,6 +49,8 @@ export default function AppRoutes() {
       <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
       <Route path="/notification-templates" element={<NotificationTemplatesPage />} />
       <Route path="/payments" element={<ProtectedRoute><PaymentsPage /></ProtectedRoute>} />
+      <Route path="/documents" element={<ProtectedRoute><DocumentsPage /></ProtectedRoute>} />
+      <Route path="/enrollment-periods" element={<ProtectedRoute><EnrollmentPeriodsPage /></ProtectedRoute>} />
       <Route path="/academic-results" element={<ProtectedRoute><AcademicResultsPage /></ProtectedRoute>} />
       <Route path="/academic-results/:facultyCode/:studentId" element={<AcademicResultDetailPage />} />
       <Route path="/exams" element={<ProtectedRoute><ExamsPage /></ProtectedRoute>} />

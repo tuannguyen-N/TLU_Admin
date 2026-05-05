@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { Badge, Button, Group } from '@mantine/core';
+import { Button, Group, Tabs } from '@mantine/core';
 import { IconSparkles } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useSemesters } from '../semesters/hooks/useSemesters';
 import { useTuitionInvoices } from './hooks/useTuitionInvoices';
+import { useTuitionFeeConfigs } from './hooks/useTuitionFeeConfigs';
 import { generateTuitionInvoices } from './services';
 import type { Semester } from '../semesters/types';
 import { TuitionInvoiceList } from './components/TuitionInvoiceList';
+import { TuitionFeeConfigList } from './components/TuitionFeeConfigList';
 import classes from './PaymentsPage.module.css';
 
 const statusColors: Record<string, string> = {
@@ -18,11 +20,11 @@ const statusColors: Record<string, string> = {
 };
 
 const statusLabels: Record<string, string> = {
-  PENDING: 'Chưa thanh toán',
-  PAID: 'Đã thanh toán',
+  PENDING: 'Chưa đóng',
+  PAID: 'Đã đóng',
   CANCELLED: 'Đã hủy',
   OVERDUE: 'Quá hạn',
-  UNPAID: 'Chưa thanh toán',
+  UNPAID: 'Chưa đóng',
 };
 
 const formatCurrency = (amount: number) => {
@@ -59,7 +61,7 @@ function SemesterCard({ semester, onSelect, onGenerate, generating }: SemesterCa
           onClick={onGenerate}
           loading={generating}
         >
-          Tính Học phí
+          Tính học phí
         </Button>
       </Group>
     </div>
@@ -77,6 +79,7 @@ export function PaymentsPage() {
   const [selectedSemester, setSelectedSemester] = useState<Semester | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string>('');
   const [generatingId, setGeneratingId] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<string | null>('invoices');
 
   const {
     invoices,
@@ -89,20 +92,31 @@ export function PaymentsPage() {
     reload: reloadInvoices,
   } = useTuitionInvoices(selectedSemester?.id ?? null, selectedStatus || undefined);
 
+  const {
+    configs,
+    loading: configsLoading,
+    error: configsError,
+    page: configsPage,
+    setPage: setConfigsPage,
+    totalPages: configsTotalPages,
+    totalElements: configsTotalElements,
+    reload: reloadConfigs,
+  } = useTuitionFeeConfigs();
+
   const handleGenerate = async (semesterId: number) => {
     try {
       setGeneratingId(semesterId);
       await generateTuitionInvoices(semesterId);
       notifications.show({
         title: 'Thành công',
-        message: 'Đã tạo hóa đơn học phí cho kỳ này',
+        message: 'Đã tạo học phí cho kỳ này',
         color: 'green',
       });
       reloadSemesters();
     } catch (err) {
       notifications.show({
         title: 'Lỗi',
-        message: 'Không thể tạo hóa đơn học phí',
+        message: 'Không thể tạo học phí cho kỳ này',
         color: 'red',
       });
     } finally {
@@ -143,31 +157,54 @@ export function PaymentsPage() {
   return (
     <div className={classes.page}>
       <div className={classes.pageHeader}>
-        <h1 className={classes.pageTitle}>Thanh toán học phí</h1>
+        <h1 className={classes.pageTitle}>Quản lý học phí</h1>
         <p className={classes.pageDesc}>
-          Quản lý các hóa đơn học phí theo từng học kỳ
+          Theo dõi học phí sinh viên đã đóng và cấu hình mức học phí theo tín chỉ
         </p>
       </div>
 
-      <div className={classes.semesterGrid}>
-        {semestersLoading ? (
-          <div className={classes.loading}>Đang tải danh sách học kỳ...</div>
-        ) : semestersError ? (
-          <div className={classes.error}>{semestersError}</div>
-        ) : semesters.length === 0 ? (
-          <div className={classes.empty}>Không tìm thấy học kỳ nào</div>
-        ) : (
-          semesters.map((semester) => (
-            <SemesterCard
-              key={semester.id}
-              semester={semester}
-              onSelect={() => setSelectedSemester(semester)}
-              onGenerate={() => handleGenerate(semester.id)}
-              generating={generatingId === semester.id}
-            />
-          ))
-        )}
-      </div>
+      <Tabs value={activeTab} onChange={setActiveTab} classNames={{ list: classes.tabsList }}>
+        <Tabs.List>
+          <Tabs.Tab value="invoices">Học phí sinh viên</Tabs.Tab>
+          <Tabs.Tab value="configs">Mức học phí theo tín chỉ</Tabs.Tab>
+        </Tabs.List>
+
+        <Tabs.Panel value="invoices" pt="lg">
+          <div className={classes.semesterGrid}>
+            {semestersLoading ? (
+              <div className={classes.loading}>Đang tải danh sách học kỳ...</div>
+            ) : semestersError ? (
+              <div className={classes.error}>{semestersError}</div>
+            ) : semesters.length === 0 ? (
+              <div className={classes.empty}>Không tìm thấy học kỳ nào</div>
+            ) : (
+              semesters.map((semester) => (
+                <SemesterCard
+                  key={semester.id}
+                  semester={semester}
+                  onSelect={() => setSelectedSemester(semester)}
+                  onGenerate={() => handleGenerate(semester.id)}
+                  generating={generatingId === semester.id}
+                />
+              ))
+            )}
+          </div>
+        </Tabs.Panel>
+
+        <Tabs.Panel value="configs" pt="lg">
+          <TuitionFeeConfigList
+            configs={configs}
+            loading={configsLoading}
+            error={configsError}
+            page={configsPage}
+            totalPages={configsTotalPages}
+            totalElements={configsTotalElements}
+            onPage={setConfigsPage}
+            onReload={reloadConfigs}
+            formatCurrency={formatCurrency}
+          />
+        </Tabs.Panel>
+      </Tabs>
     </div>
   );
 }

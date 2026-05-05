@@ -42,6 +42,11 @@ const targetTypeData = [
   { value: 'STUDENT', label: 'Sinh viên' },
 ];
 
+const referenceTypeData = [
+  { value: 'TUITION', label: 'TUITION' },
+  { value: 'EXAM_SCHEDULE', label: 'EXAM_SCHEDULE' },
+];
+
 interface SelectItem {
   id: number;
   label: string;
@@ -55,6 +60,7 @@ export function AddNotificationCard({ onCancel, onSave }: Props) {
     targetIds: [] as number[],
     deadLine: '',
     isImportant: false,
+    referenceType: '',
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [loading, setLoading] = useState(false);
@@ -184,8 +190,10 @@ export function AddNotificationCard({ onCancel, onSave }: Props) {
         content: form.content.trim(),
         targetType: form.targetType,
         targetIds: isGlobal ? [] : form.targetIds,
+        createdBy: 'Admin',
         deadLine: form.deadLine || null,
         isImportant: form.isImportant,
+        referenceType: form.referenceType.trim() || null,
       };
       await createNotification(payload);
       mantineNotifications.show({ title: 'Thành công', message: 'Tạo thông báo thành công', color: 'green' });
@@ -262,6 +270,17 @@ export function AddNotificationCard({ onCancel, onSave }: Props) {
                 placeholder="YYYY-MM-DD"
                 value={form.deadLine}
                 onChange={e => set('deadLine')(e.target.value)}
+                classNames={{ label: classes.fieldLabel, input: classes.input }}
+              />
+            </Grid.Col>
+            <Grid.Col span={6}>
+              <Select
+                label="NỘI DUNG LIÊN QUAN"
+                placeholder="Chọn loại liên quan"
+                data={referenceTypeData}
+                value={form.referenceType}
+                onChange={val => set('referenceType')(val || '')}
+                clearable
                 classNames={{ label: classes.fieldLabel, input: classes.input }}
               />
             </Grid.Col>

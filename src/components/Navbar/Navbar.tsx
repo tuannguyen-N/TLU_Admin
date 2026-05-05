@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useMsal } from '@azure/msal-react';
 
 import {
@@ -17,6 +17,8 @@ import {
   IconSwitchHorizontal,
   IconFileDescription,
   IconCertificate,
+  IconFiles,
+  IconCalendarPlus,
 } from '@tabler/icons-react';
 import { Group } from '@mantine/core';
 import logo from '../../assets/TLU_Standard_version-03.png';
@@ -34,17 +36,18 @@ const data = [
   { link: '/student-classes', label: 'Lớp sinh viên', icon: IconUsers },
   { link: '/departments', label: 'Khoa / Bộ môn', icon: IconBuildingBank },
   { link: '/exams', label: 'Lịch thi', icon: IconFileDescription },
+  { link: '/enrollment-periods', label: 'Đăng ký học', icon: IconCalendarPlus },
   { link: '/notifications', label: 'Thông báo', icon: IconBellRinging },
   { link: '/notification-templates', label: 'Mẫu thông báo', icon: IconBellRinging },
   { link: '/requests', label: 'Đơn từ', icon: IconClipboardList },
   { link: '/news', label: 'Tin tức', icon: IconNews },
-  { link: '/payments', label: 'Thanh toán', icon: IconCreditCard },
+  { link: '/payments', label: 'Học phí', icon: IconCreditCard },
+  { link: '/documents', label: 'Tài liệu AI', icon: IconFiles },
   { link: '/academic-results', label: 'Kết quả học tập', icon: IconCertificate },
 ];
 
 export function Navbar() {
   const { instance } = useMsal();
-  const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');

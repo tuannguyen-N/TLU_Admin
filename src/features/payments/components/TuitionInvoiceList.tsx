@@ -1,7 +1,7 @@
-import { Pagination, Group, Text, Button, Loader, Center, Badge, ActionIcon, Tooltip, Select } from '@mantine/core';
-import { IconArrowLeft, IconRefresh, IconRotateClockwise } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
 import { useState } from 'react';
+import { ActionIcon, Badge, Button, Center, Group, Loader, Pagination, Select, Text, Tooltip } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import { IconArrowLeft, IconRefresh, IconRotateClockwise } from '@tabler/icons-react';
 import { regenerateTuitionInvoice } from '../services';
 import type { TuitionInvoice } from '../types';
 import type { Semester } from '../../semesters/types';
@@ -35,8 +35,8 @@ function calculateStats(invoices: TuitionInvoice[]) {
 
 const statusOptions = [
   { value: '', label: 'Tất cả' },
-  { value: 'PAID', label: 'Đã thanh toán' },
-  { value: 'UNPAID', label: 'Chưa thanh toán' },
+  { value: 'PAID', label: 'Đã đóng' },
+  { value: 'UNPAID', label: 'Chưa đóng' },
   { value: 'OVERDUE', label: 'Quá hạn' },
   { value: 'CANCELLED', label: 'Đã hủy' },
 ];
@@ -60,8 +60,8 @@ export function TuitionInvoiceList({
 }: Props) {
   const [regeneratingId, setRegeneratingId] = useState<number | null>(null);
   const filteredInvoices = selectedStatus
-  ? invoices.filter(i => i.status === selectedStatus)
-  : invoices;
+    ? invoices.filter(i => i.status === selectedStatus)
+    : invoices;
   const stats = calculateStats(filteredInvoices);
 
   const handleRegenerate = async (invoiceId: number) => {
@@ -70,14 +70,14 @@ export function TuitionInvoiceList({
       await regenerateTuitionInvoice(invoiceId);
       notifications.show({
         title: 'Thành công',
-        message: 'Đã regenerate hóa đơn',
+        message: 'Đã tính lại học phí',
         color: 'green',
       });
       onReload();
     } catch (err) {
       notifications.show({
         title: 'Lỗi',
-        message: 'Không thể regenerate hóa đơn',
+        message: 'Không thể tính lại học phí',
         color: 'red',
       });
     } finally {
@@ -94,9 +94,9 @@ export function TuitionInvoiceList({
         </button>
         <div className={classes.headerRight}>
           <div>
-            <h2 className={classes.title}>Hóa đơn học phí</h2>
+            <h2 className={classes.title}>Học phí sinh viên</h2>
             <p className={classes.subtitle}>
-              {semester.semesterName} • {totalElements} hóa đơn
+              {semester.semesterName} • {totalElements} khoản học phí
             </p>
           </div>
           <Group gap={8}>
@@ -124,15 +124,15 @@ export function TuitionInvoiceList({
       <div className={classes.statsGrid}>
         <div className={classes.statCard}>
           <span className={classes.statValue}>{totalElements}</span>
-          <span className={classes.statLabel}>Tổng hóa đơn</span>
+          <span className={classes.statLabel}>Tổng khoản học phí</span>
         </div>
         <div className={`${classes.statCard} ${classes.pending}`}>
           <span className={classes.statValue}>{stats.pending}</span>
-          <span className={classes.statLabel}>Chưa thanh toán</span>
+          <span className={classes.statLabel}>Chưa đóng</span>
         </div>
         <div className={`${classes.statCard} ${classes.paid}`}>
           <span className={classes.statValue}>{stats.paid}</span>
-          <span className={classes.statLabel}>Đã thanh toán</span>
+          <span className={classes.statLabel}>Đã đóng</span>
         </div>
         <div className={`${classes.statCard} ${classes.overdue}`}>
           <span className={classes.statValue}>{stats.overdue}</span>
@@ -156,10 +156,10 @@ export function TuitionInvoiceList({
                 <tr>
                   <th>Mã sinh viên</th>
                   <th>Tên sinh viên</th>
-                  <th>Mã hóa đơn</th>
-                  <th>Hạn thanh toán</th>
+                  <th>Mã học phí</th>
+                  <th>Hạn đóng</th>
                   <th>Tổng tiền</th>
-                  <th>Thanh toán</th>
+                  <th>Phải đóng</th>
                   <th>Trạng thái</th>
                   <th className={classes.actionsCol}>Hành động</th>
                 </tr>
@@ -167,7 +167,7 @@ export function TuitionInvoiceList({
               <tbody>
                 {filteredInvoices.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className={classes.empty}>Không tìm thấy hóa đơn nào</td>
+                    <td colSpan={8} className={classes.empty}>Không tìm thấy khoản học phí nào</td>
                   </tr>
                 ) : (
                   filteredInvoices.map((invoice) => (
@@ -187,7 +187,7 @@ export function TuitionInvoiceList({
                       </td>
                       <td>
                         <Group gap={4} wrap="nowrap">
-                          <Tooltip label="Regenerate" position="top">
+                          <Tooltip label="Tính lại" position="top">
                             <ActionIcon
                               variant="subtle"
                               color="blue"

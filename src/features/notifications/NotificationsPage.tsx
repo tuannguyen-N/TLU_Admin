@@ -5,7 +5,6 @@ import { AddNotificationCard } from './components/AddNotificationCard';
 import { EditNotificationCard } from './components/EditNotificationCard';
 import { useNotifications } from './hooks/useNotifications';
 import type { Notification } from './types';
-import type { NotificationFormData } from './types';
 import classes from './NotificationsPage.module.css';
 
 export function NotificationsPage() {

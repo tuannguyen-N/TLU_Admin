@@ -10,6 +10,7 @@ interface NotificationApiResponse {
   targetIds: number[];
   deadLine: string | null;
   isImportant: boolean;
+  referenceType: string | null;
 }
 
 interface NotificationApiListResponse {
@@ -47,6 +48,7 @@ export async function fetchNotifications(params: { page?: number; size?: number 
     targetIds: item.targetIds || [],
     deadLine: item.deadLine,
     isImportant: item.isImportant,
+    referenceType: item.referenceType,
   }));
   return {
     notifications,
@@ -75,11 +77,12 @@ export async function createNotification(payload: NotificationFormData): Promise
       id: 0,
       title: payload.title,
       content: payload.content,
-      createdBy: '',
+      createdBy: payload.createdBy || '',
       targetType: payload.targetType,
       targetIds: payload.targetIds,
       deadLine: payload.deadLine || null,
       isImportant: payload.isImportant,
+      referenceType: payload.referenceType || null,
     };
   }
   return {
@@ -91,6 +94,7 @@ export async function createNotification(payload: NotificationFormData): Promise
     targetIds: item.targetIds || [],
     deadLine: item.deadLine,
     isImportant: item.isImportant,
+    referenceType: item.referenceType,
   };
 }
 

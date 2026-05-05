@@ -1,5 +1,5 @@
 import {
-  TextInput, Select, Button, Stack, Grid, Alert, LoadingOverlay, Textarea, Text, MultiSelect, Box, Group, CloseButton, Badge,
+  TextInput, Select, Button, Stack, Grid, Alert, LoadingOverlay, Textarea, Text, MultiSelect, Box, Group, CloseButton,
   Switch
 } from '@mantine/core';
 import {
@@ -44,6 +44,11 @@ const targetTypeData = [
   { value: 'STUDENT', label: 'Sinh viên' },
 ];
 
+const referenceTypeData = [
+  { value: 'TUITION', label: 'TUITION' },
+  { value: 'EXAM_SCHEDULE', label: 'EXAM_SCHEDULE' },
+];
+
 interface SelectItem {
   id: number;
   label: string;
@@ -57,6 +62,7 @@ export function EditNotificationCard({ notification, onCancel, onSave }: Props) 
     targetIds: (notification.targetIds || []).map(Number),
     deadLine: notification.deadLine || '',
     isImportant: notification.isImportant,
+    referenceType: notification.referenceType || '',
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [loading, setLoading] = useState(false);
@@ -198,6 +204,7 @@ export function EditNotificationCard({ notification, onCancel, onSave }: Props) 
         createdBy: notification.createdBy,
         deadLine: form.deadLine || null,
         isImportant: form.isImportant,
+        referenceType: form.referenceType.trim() || null,
       };
       await updateNotification(notification.id, payload);
       mantineNotifications.show({ title: 'Thành công', message: 'Cập nhật thông báo thành công', color: 'green' });
@@ -274,6 +281,17 @@ export function EditNotificationCard({ notification, onCancel, onSave }: Props) 
                 placeholder="YYYY-MM-DD"
                 value={form.deadLine}
                 onChange={e => set('deadLine')(e.target.value)}
+                classNames={{ label: classes.fieldLabel, input: classes.input }}
+              />
+            </Grid.Col>
+            <Grid.Col span={6}>
+              <Select
+                label="NỘI DUNG LIÊN QUAN"
+                placeholder="Chọn loại liên quan"
+                data={referenceTypeData}
+                value={form.referenceType}
+                onChange={val => set('referenceType')(val || '')}
+                clearable
                 classNames={{ label: classes.fieldLabel, input: classes.input }}
               />
             </Grid.Col>
