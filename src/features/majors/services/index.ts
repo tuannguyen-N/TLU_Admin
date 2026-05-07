@@ -34,7 +34,7 @@ function mapApiToMajor(apiMajor: MajorApiResponse): Major {
 }
 
 export interface FetchMajorsParams {
-  khoa: string;
+  khoa?: string;
   page?: number;
   size?: number;
 }
@@ -48,7 +48,8 @@ export interface FetchMajorsResponse {
 }
 
 export async function fetchMajors(params: FetchMajorsParams): Promise<FetchMajorsResponse> {
-  const { khoa, page = 0, size = 50 } = params;
+  const { khoa = '', page = 0, size = 50 } = params;
+
 
   const response = await apiClient<MajorApiListResponse>(
     '/majors/all',

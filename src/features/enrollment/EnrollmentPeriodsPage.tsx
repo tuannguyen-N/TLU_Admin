@@ -27,6 +27,8 @@ import {
 } from './services';
 import { useEnrollmentPeriods } from './hooks/useEnrollmentPeriods';
 import { useStudentEnrollments } from './hooks/useStudentEnrollments';
+import { useFacultiesSelect } from './hooks/useFacultySelect';
+import { useStudentsSelect } from './hooks/useStudentsSelect';
 import type { EnrollmentPeriod, EnrollmentPeriodFormData, StudentEnrollmentFilter } from './types';
 import classes from './EnrollmentPeriodsPage.module.css';
 
@@ -93,7 +95,7 @@ export function EnrollmentPeriodsPage() {
   const [activeTab, setActiveTab] = useState<string | null>('periods');
   const [semesterFilter, setSemesterFilter] = useState('');
   const [enrollmentSemesterId, setEnrollmentSemesterId] = useState<string>('');
-  const [majorId, setMajorId] = useState<number | ''>('');
+  const [facultyId, setFacultyId] = useState<number | ''>('');
   const [studentId, setStudentId] = useState<number | ''>('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingPeriod, setEditingPeriod] = useState<EnrollmentPeriod | null>(null);
@@ -119,10 +121,10 @@ export function EnrollmentPeriodsPage() {
   } = useEnrollmentPeriods(semesterFilter || undefined);
 
   const enrollmentFilter = useMemo<StudentEnrollmentFilter>(() => ({
-    ...(majorId !== '' && { majorId: Number(majorId) }),
+    ...(facultyId !== '' && { facultyId: Number(facultyId) }),
     ...(enrollmentSemesterId && { semesterId: Number(enrollmentSemesterId) }),
     ...(studentId !== '' && { studentId: Number(studentId) }),
-  }), [majorId, enrollmentSemesterId, studentId]);
+  }), [facultyId, enrollmentSemesterId, studentId]);
 
   const {
     enrollments,
@@ -130,6 +132,23 @@ export function EnrollmentPeriodsPage() {
     error: enrollmentsError,
     reload: reloadEnrollments,
   } = useStudentEnrollments(enrollmentFilter);
+
+  const {
+    options: facultiesOptions,
+    faculties,
+    loading: facultiesLoading,
+  } = useFacultiesSelect();
+
+  const selectedFacultyCode = useMemo(() => {
+    if (!facultyId) return undefined;
+    const selectedFaculty = faculties.find((f) => f.id === facultyId);
+    return selectedFaculty?.facultyCode;
+  }, [facultyId, faculties]);
+
+  const {
+    options: studentsOptions,
+    loading: studentsLoading,
+  } = useStudentsSelect(selectedFacultyCode);
 
   const semesterOptions = useMemo(() => semesters.map(semester => ({
     value: String(semester.id),
@@ -426,21 +445,27 @@ export function EnrollmentPeriodsPage() {
                 disabled={semestersLoading}
                 w={280}
               />
-              <NumberInput
-                label="ID ngành"
-                placeholder="majorId"
-                value={majorId}
-                onChange={(value) => setMajorId(value === '' ? '' : Number(value))}
-                min={1}
-                w={160}
+              <Select
+                label="Khoa"
+                placeholder="Tất cả khoa"
+                data={facultiesOptions}
+                value={facultyId ? String(facultyId) : null}
+                onChange={(value) => setFacultyId(value ? Number(value) : '')}
+                clearable
+                searchable
+                disabled={facultiesLoading}
+                w={280}
               />
-              <NumberInput
-                label="ID sinh viên"
-                placeholder="studentId"
-                value={studentId}
-                onChange={(value) => setStudentId(value === '' ? '' : Number(value))}
-                min={1}
-                w={160}
+              <Select
+                label="Sinh viên"
+                placeholder="Tất cả sinh viên"
+                data={studentsOptions}
+                value={studentId ? String(studentId) : null}
+                onChange={(value) => setStudentId(value ? Number(value) : '')}
+                clearable
+                searchable
+                disabled={studentsLoading}
+                w={280}
               />
             </div>
             <Group gap={8}>

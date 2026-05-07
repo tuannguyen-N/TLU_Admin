@@ -2,6 +2,7 @@ import { apiClient } from '../../../lib/api-client';
 import type {
   EnrollmentPeriod,
   EnrollmentPeriodFormData,
+  Faculty,
   StudentEnrollment,
   StudentEnrollmentFilter,
 } from '../types';
@@ -10,6 +11,27 @@ interface ApiResponse<T> {
   code: number;
   message: string;
   data: T;
+}
+
+interface FacultyApiResponse {
+  id: number;
+  facultyName: string;
+  facultyCode: string;
+  isActive: boolean;
+}
+
+interface FacultyApiListResponse {
+  code: number;
+  message: string;
+  data: {
+    content: FacultyApiResponse[];
+    page: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+    first: boolean;
+    last: boolean;
+  };
 }
 
 interface EnrollmentPeriodListResponse {
@@ -76,7 +98,7 @@ export async function deleteEnrollmentPeriod(id: number): Promise<void> {
 
 export async function fetchStudentEnrollments(filter: StudentEnrollmentFilter): Promise<StudentEnrollment[]> {
   const params: Record<string, number> = {};
-  if (filter.majorId) params.majorId = filter.majorId;
+  if (filter.facultyId) params.facultyId = filter.facultyId;
   if (filter.semesterId) params.semesterId = filter.semesterId;
   if (filter.studentId) params.studentId = filter.studentId;
 
@@ -99,4 +121,20 @@ export async function cancelStudentEnrollment(id: number): Promise<void> {
   await apiClient<ApiResponse<null>>(`/enrollment/cancel/${id}`, {
     method: 'POST',
   });
+}
+
+export async function fetchFaculties(): Promise<Faculty[]> {
+  const response = await apiClient<FacultyApiListResponse>('/faculty/all', { method: 'GET' });
+  return response.data.content
+    .filter(f => f.facultyCode !== 'PDT')
+    .filter(f => f.isActive)
+    .map(mapApiToFaculty);
+}
+
+function mapApiToFaculty(apiData: FacultyApiResponse): Faculty {
+  return {
+    id: apiData.id,
+    facultyCode: apiData.facultyCode,
+    name: apiData.facultyName,
+  };
 }

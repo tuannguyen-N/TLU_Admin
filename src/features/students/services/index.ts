@@ -204,7 +204,7 @@ export async function fetchFaculties(): Promise<Faculty[]> {
 }
 
 export interface FetchStudentsParams {
-  khoa: string;
+  khoa?: string;
   page?: number;
   size?: number;
 }
@@ -218,7 +218,7 @@ export interface FetchStudentsResponse {
 }
 
 export async function fetchStudentsByFaculty(params: FetchStudentsParams): Promise<FetchStudentsResponse> {
-  const { khoa, page = 0, size = 50 } = params;
+  const { khoa = '', page = 0, size = 50 } = params;
 
   const response = await apiClient<StudentApiListResponse>(
     '/students/all',

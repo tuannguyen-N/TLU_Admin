@@ -31,7 +31,13 @@ export interface StudentEnrollment {
 }
 
 export interface StudentEnrollmentFilter {
-  majorId?: number;
+  facultyId?: number;
   semesterId?: number;
   studentId?: number;
+}
+
+export interface Faculty {
+  id: number;
+  facultyCode: string;
+  name: string;
 }
