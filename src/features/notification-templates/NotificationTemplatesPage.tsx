@@ -21,6 +21,7 @@ export function NotificationTemplatesPage() {
     totalElements,
     reload,
     handleDelete,
+    replaceTemplate,
   } = useNotificationTemplates();
 
   const handleAddTemplate = () => setAddModalOpened(true);
@@ -73,9 +74,9 @@ export function NotificationTemplatesPage() {
           <EditTemplateCard
             template={editingTemplate}
             onCancel={() => setEditingTemplate(null)}
-            onSave={() => {
+            onSave={(updatedTemplate) => {
+              replaceTemplate(updatedTemplate);
               setEditingTemplate(null);
-              reload();
             }}
           />
         )}

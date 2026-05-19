@@ -31,7 +31,7 @@ export interface SubjectFormDataInput {
   subjectCode: string;
   subjectName: string;
   credits: number | null;
-  coefficient: number | null;
+  coefficient: number | string | null;
   lectureHours: number | null;
   practiceHours: number | null;
 }
@@ -132,7 +132,8 @@ export function AddSubjectCard({ onCancel, onSave }: Props) {
     if (!form.credits) {
       newErrors.credits = 'Số tín chỉ là bắt buộc';
     }
-    if (!form.coefficient && form.coefficient !== 0) {
+    const coefficientValue = Number(form.coefficient);
+    if (form.coefficient === '' || form.coefficient === null || Number.isNaN(coefficientValue)) {
       newErrors.coefficient = 'Hệ số là bắt buộc';
     }
     if (!form.lectureHours && form.lectureHours !== 0) {
@@ -158,7 +159,7 @@ export function AddSubjectCard({ onCancel, onSave }: Props) {
       subjectCode: form.subjectCode.trim(),
       subjectName: form.subjectName.trim(),
       credits: form.credits ?? 0,
-      coefficient: form.coefficient ?? 1,
+      coefficient: Number(form.coefficient ?? 1),
       lectureHours: form.lectureHours ?? 0,
       practiceHours: form.practiceHours ?? 0,
     };
@@ -260,12 +261,15 @@ export function AddSubjectCard({ onCancel, onSave }: Props) {
               <NumberInput
                 label="HỆ SỐ"
                 required
-                placeholder="1"
+                placeholder="1.0"
                 value={form.coefficient ?? ''}
-                onChange={val => set('coefficient')(typeof val === 'number' ? val : null)}
+                onChange={val => set('coefficient')(val)}
                 error={errors.coefficient}
                 classNames={{ label: classes.fieldLabel, input: classes.input }}
-                min={1}
+                min={0}
+                step={0.1}
+                decimalSeparator="."
+                decimalScale={2}
               />
             </Grid.Col>
             <Grid.Col span={4}>

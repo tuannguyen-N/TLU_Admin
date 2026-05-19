@@ -1,7 +1,6 @@
 import {
     TextInput, Select, Button, Stack, Grid, Alert, LoadingOverlay
 } from '@mantine/core';
-import { DateInput, TimeInput } from '@mantine/dates';
 import {
     IconCalendar, IconX, IconDeviceFloppy
 } from '@tabler/icons-react';
@@ -60,13 +59,29 @@ const formatDateToApi = (date: Date | null): string => {
     return `${year}-${month}-${day}`;
 };
 
+const parseDateInput = (value: string): Date | null => {
+    if (!value) return null;
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const normalizeTime = (value: string): string => {
+    if (!value) return value;
+    return value.length === 5 ? `${value}:00` : value;
+};
+
+const toTimeInputValue = (value: string): string => {
+    if (!value) return '';
+    return value.length >= 5 ? value.slice(0, 5) : value;
+};
+
 export function AddExamCard({ onCancel, onSave, semesters, subjects }: Props) {
     const [form, setForm] = useState({
         subjectId: null as number | null,
         semesterId: null as number | null,
         examDate: null as Date | null,
-        startTime: '08:00:00',
-        endTime: '10:00:00',
+        startTime: '08:00',
+        endTime: '10:00',
         examRoom: '',
         examLocation: '',
         examFormat: 'Offline' as 'Online' | 'Offline',
@@ -141,8 +156,8 @@ export function AddExamCard({ onCancel, onSave, semesters, subjects }: Props) {
             subjectId: form.subjectId!,
             semesterId: form.semesterId!,
             examDate: formatDateToApi(form.examDate),
-            startTime: form.startTime,
-            endTime: form.endTime,
+            startTime: normalizeTime(form.startTime),
+            endTime: normalizeTime(form.endTime),
             examRoom: form.examRoom.trim(),
             examLocation: form.examLocation.trim() || undefined,
             examFormat: form.examFormat,
@@ -211,32 +226,33 @@ export function AddExamCard({ onCancel, onSave, semesters, subjects }: Props) {
                             />
                         </Grid.Col>
                         <Grid.Col span={4}>
-                            <DateInput
+                            <TextInput
                                 label="NGÀY THI"
+                                type="date"
                                 required
-                                placeholder="Chọn ngày"
-                                value={form.examDate}
-                                onChange={val => set('examDate')(val)}
+                                value={form.examDate ? formatDateToApi(form.examDate) : ''}
+                                onChange={e => set('examDate')(parseDateInput(e.target.value))}
                                 error={errors.examDate}
-                                classNames={{ label: classes.fieldLabel, input: classes.dateInput }}
-                                valueFormat="YYYY-MM-DD"
+                                classNames={{ label: classes.fieldLabel, input: classes.input }}
                             />
                         </Grid.Col>
                         <Grid.Col span={4}>
-                            <TimeInput
+                            <TextInput
                                 label="GIỜ BẮT ĐẦU"
+                                type="time"
                                 required
-                                value={form.startTime}
+                                value={toTimeInputValue(form.startTime)}
                                 onChange={e => set('startTime')(e.target.value)}
                                 error={errors.startTime}
                                 classNames={{ label: classes.fieldLabel, input: classes.input }}
                             />
                         </Grid.Col>
                         <Grid.Col span={4}>
-                            <TimeInput
+                            <TextInput
                                 label="GIỜ KẾT THÚC"
+                                type="time"
                                 required
-                                value={form.endTime}
+                                value={toTimeInputValue(form.endTime)}
                                 onChange={e => set('endTime')(e.target.value)}
                                 error={errors.endTime || errors.timeRange}
                                 classNames={{ label: classes.fieldLabel, input: classes.input }}

@@ -19,6 +19,7 @@ import {
   IconCertificate,
   IconFiles,
   IconCalendarPlus,
+  IconMessageCircle2,
 } from '@tabler/icons-react';
 import { Group } from '@mantine/core';
 import logo from '../../assets/TLU_Standard_version-03.png';
@@ -44,6 +45,7 @@ const data = [
   { link: '/payments', label: 'Học phí', icon: IconCreditCard },
   { link: '/documents', label: 'Tài liệu AI', icon: IconFiles },
   { link: '/academic-results', label: 'Kết quả học tập', icon: IconCertificate },
+  { link: '/feedback', label: 'Feedback / Góp ý', icon: IconMessageCircle2 },
 ];
 
 export function Navbar() {

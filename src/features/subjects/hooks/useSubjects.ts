@@ -30,7 +30,6 @@ export function useSubjects(khoa: string) {
         page: pageNum,
         size: 50,
       });
-      console.log('[DEBUG] All subjects from API:', result.subjects);
       setSubjects(result.subjects);
       setTotalPages(result.totalPages);
     } catch (err) {

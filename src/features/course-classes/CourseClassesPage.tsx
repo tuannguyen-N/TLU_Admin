@@ -9,8 +9,23 @@ import type { UpdateCourseClassPayload } from './components/EditCourseClassCard'
 import { CourseClassDetailCard } from './components/CourseClassDetailCard';
 import { ScheduleModal } from './components/ScheduleModal';
 import { useCourseClasses } from './hooks/useCourseClasses';
-import { fetchCourseClassDetailAPI, updateCourseClassAPI, fetchSchedulesAPI, updateScheduleAPI, deleteScheduleAPI, createSchedulesAPI } from './services';
-import type { CourseClass, CourseClassFormData, CourseClassDetail, Schedule } from './types';
+import {
+    fetchCourseClassDetailAPI,
+    updateCourseClassAPI,
+    fetchSchedulesAPI,
+    updateScheduleAPI,
+    deleteScheduleAPI,
+    createSchedulesAPI,
+    fetchAttendanceStatisticsAPI,
+    openAttendanceSessionAPI,
+} from './services';
+import type {
+    AttendanceStatistics,
+    CourseClass,
+    CourseClassFormData,
+    CourseClassDetail,
+    Schedule,
+} from './types';
 import type { UpdateSchedulePayload } from './services';
 import classes from './CourseClassesPage.module.css';
 
@@ -30,6 +45,13 @@ export function CourseClassesPage() {
     const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
     const [addingSchedule, setAddingSchedule] = useState(false);
     const [scheduleModalLoading, setScheduleModalLoading] = useState(false);
+    const [attendanceStats, setAttendanceStats] = useState<AttendanceStatistics | null>(null);
+    const [attendanceLoading, setAttendanceLoading] = useState(false);
+    const [attendanceError, setAttendanceError] = useState<string | null>(null);
+    const [qrToken, setQrToken] = useState<string | null>(null);
+    const [qrLoading, setQrLoading] = useState(false);
+    const [qrError, setQrError] = useState<string | null>(null);
+    const [qrOpened, setQrOpened] = useState(false);
 
     const {
         courseClasses,
@@ -86,11 +108,21 @@ export function CourseClassesPage() {
         setDetail(null);
         setSchedules([]);
         setSchedulesLoading(true);
+        setAttendanceStats(null);
+        setAttendanceError(null);
+        setAttendanceLoading(true);
+        setQrToken(null);
+        setQrError(null);
+        setQrOpened(false);
+
+        const detailPromise = fetchCourseClassDetailAPI(courseClass.id);
+        const schedulesPromise = fetchSchedulesAPI(courseClass.id);
+        const attendancePromise = fetchAttendanceStatisticsAPI(courseClass.id);
 
         try {
             const [detailResponse, schedulesResponse] = await Promise.all([
-                fetchCourseClassDetailAPI(courseClass.id),
-                fetchSchedulesAPI(courseClass.id),
+                detailPromise,
+                schedulesPromise,
             ]);
             setDetail(detailResponse);
             setSchedules(schedulesResponse);
@@ -100,6 +132,15 @@ export function CourseClassesPage() {
             setDetailLoading(false);
             setSchedulesLoading(false);
         }
+
+        try {
+            const attendanceResponse = await attendancePromise;
+            setAttendanceStats(attendanceResponse);
+        } catch (err) {
+            setAttendanceError(err instanceof Error ? err.message : 'Không thể tải thống kê chuyên cần');
+        } finally {
+            setAttendanceLoading(false);
+        }
     };
 
     const handleCloseDetail = () => {
@@ -108,6 +149,13 @@ export function CourseClassesPage() {
         setDetailError(null);
         setSchedules([]);
         setEditingSchedule(null);
+        setAttendanceStats(null);
+        setAttendanceError(null);
+        setAttendanceLoading(false);
+        setQrToken(null);
+        setQrError(null);
+        setQrLoading(false);
+        setQrOpened(false);
     };
 
     const handleEditSchedule = (schedule: Schedule) => {
@@ -201,6 +249,29 @@ export function CourseClassesPage() {
 
     const handleCloseAddSchedule = () => {
         setAddingSchedule(false);
+    };
+
+    const handleCreateAttendanceQr = async () => {
+        if (!viewingCourseClass) return;
+
+        setQrLoading(true);
+        setQrError(null);
+
+        try {
+            const token = await openAttendanceSessionAPI(viewingCourseClass.id);
+            setQrToken(token);
+            setQrOpened(true);
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Không thể tạo QR điểm danh';
+            setQrError(errorMessage);
+            notifications.show({
+                title: 'Lỗi',
+                message: errorMessage,
+                color: 'red',
+            });
+        } finally {
+            setQrLoading(false);
+        }
     };
 
     const handleSaveCourseClass = async (_data: CourseClassFormData) => {
@@ -357,9 +428,18 @@ export function CourseClassesPage() {
                         detail={detail}
                         schedules={schedules}
                         schedulesLoading={schedulesLoading}
+                        attendanceStats={attendanceStats}
+                        attendanceLoading={attendanceLoading}
+                        attendanceError={attendanceError}
+                        qrToken={qrToken}
+                        qrLoading={qrLoading}
+                        qrError={qrError}
+                        qrOpened={qrOpened}
                         onEditSchedule={handleEditSchedule}
                         onDeleteSchedule={handleDeleteSchedule}
                         onAddSchedule={handleOpenAddSchedule}
+                        onCreateAttendanceQr={handleCreateAttendanceQr}
+                        onCloseQr={() => setQrOpened(false)}
                     />
                 ) : null}
             </Modal>

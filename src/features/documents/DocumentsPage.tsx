@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { Alert, Button, Group, Stack, Text, Textarea } from '@mantine/core';
+import { Button, Group, Stack, Text, Textarea } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconDatabase, IconFileText, IconTrash, IconUpload } from '@tabler/icons-react';
 import { deleteDocuments, uploadDocuments } from './services';
@@ -94,7 +94,7 @@ export function DocumentsPage() {
         </p>
       </div>
 
-      <div className={classes.grid}>
+      <Stack gap={20}>
         <div className={classes.panel}>
           <div className={classes.panelHeader}>
             <div className={classes.panelIcon}>
@@ -196,10 +196,6 @@ export function DocumentsPage() {
               </div>
             )}
 
-            <Alert color="yellow" variant="light">
-              API hiện chỉ cung cấp upload và xóa theo source, chưa có endpoint lấy danh sách tài liệu.
-            </Alert>
-
             <Group justify="flex-end">
               <Button
                 color="red"
@@ -213,7 +209,7 @@ export function DocumentsPage() {
             </Group>
           </Stack>
         </div>
-      </div>
+      </Stack>
     </div>
   );
 }

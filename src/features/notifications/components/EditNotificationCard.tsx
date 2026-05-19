@@ -278,7 +278,7 @@ export function EditNotificationCard({ notification, onCancel, onSave }: Props) 
             <Grid.Col span={6}>
               <TextInput
                 label="HẠN CHÓT"
-                placeholder="YYYY-MM-DD"
+                type="date"
                 value={form.deadLine}
                 onChange={e => set('deadLine')(e.target.value)}
                 classNames={{ label: classes.fieldLabel, input: classes.input }}

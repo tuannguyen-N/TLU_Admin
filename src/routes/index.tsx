@@ -23,6 +23,7 @@ import { ExamsPage } from '../features/exams/ExamsPage';
 import { AcademicResultsPage } from '../features/academic-results/AcademicResultsPage';
 import { NotificationTemplatesPage } from '../features/notification-templates/NotificationTemplatesPage';
 import { AcademicResultDetailPage } from '../features/academic-results/components/AcademicResultDetailPage';
+import { FeedbackPage } from '../features/feedback/FeedbackPage';
 
 
 export default function AppRoutes() {
@@ -54,6 +55,7 @@ export default function AppRoutes() {
       <Route path="/academic-results" element={<ProtectedRoute><AcademicResultsPage /></ProtectedRoute>} />
       <Route path="/academic-results/:facultyCode/:studentId" element={<AcademicResultDetailPage />} />
       <Route path="/exams" element={<ProtectedRoute><ExamsPage /></ProtectedRoute>} />
+      <Route path="/feedback" element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

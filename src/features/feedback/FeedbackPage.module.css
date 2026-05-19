@@ -1,0 +1,44 @@
+.page {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  margin-bottom: 32px;
+}
+
+.pageTitle {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #111827;
+}
+
+.pageDesc {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.searchInput {
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+
+  &:focus {
+    border-color: #3b82f6;
+  }
+}
+
+.table {
+  border-radius: 8px;
+  overflow: hidden;
+}

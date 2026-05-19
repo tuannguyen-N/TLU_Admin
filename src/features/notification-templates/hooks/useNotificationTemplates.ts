@@ -45,6 +45,12 @@ export function useNotificationTemplates() {
     loadTemplates(page);
   }, [page, loadTemplates]);
 
+  const replaceTemplate = useCallback((updatedTemplate: NotificationTemplate) => {
+    setTemplates((prev) => prev.map((item) => (
+      item.id === updatedTemplate.id ? updatedTemplate : item
+    )));
+  }, []);
+
   return {
     templates,
     loading,
@@ -55,5 +61,6 @@ export function useNotificationTemplates() {
     totalElements,
     reload,
     handleDelete,
+    replaceTemplate,
   };
 }

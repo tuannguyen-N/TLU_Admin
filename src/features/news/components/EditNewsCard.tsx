@@ -11,6 +11,19 @@ import classes from './AddNewsCard.module.css';
 import { updateNews } from '../services';
 import type { News } from '../types';
 
+function toDateTimeLocalValue(value: string): string {
+  if (!value) return '';
+  if (value.includes('T')) {
+    return value.slice(0, 16);
+  }
+  return `${value}T00:00`;
+}
+
+function normalizeDateTimeValue(value: string): string {
+  if (!value) return '';
+  return value.length === 16 ? `${value}:00` : value;
+}
+
 interface ValidationErrors {
   title?: string;
   newsUrl?: string;
@@ -30,7 +43,7 @@ export function EditNewsCard({ news, onCancel, onSave }: Props) {
     excerpt: news.excerpt,
     newsUrl: news.newsUrl,
     source: news.source,
-    publishDate: news.publishDate,
+    publishDate: toDateTimeLocalValue(news.publishDate),
   });
   const [file, setFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -69,8 +82,8 @@ export function EditNewsCard({ news, onCancel, onSave }: Props) {
     if (!form.source.trim()) {
       newErrors.source = 'Nguồn tin là bắt buộc';
     }
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(form.publishDate)) {
-      newErrors.publishDate = 'Ngày phải dạng yyyy-MM-dd';
+    if (!form.publishDate.trim()) {
+      newErrors.publishDate = 'Ngày đăng là bắt buộc';
     }
 
     setErrors(newErrors);
@@ -90,7 +103,7 @@ export function EditNewsCard({ news, onCancel, onSave }: Props) {
         excerpt: form.excerpt.trim(),
         newsUrl: form.newsUrl.trim(),
         source: form.source.trim(),
-        publishDate: form.publishDate.trim(),
+        publishDate: normalizeDateTimeValue(form.publishDate.trim()),
         file: file,
       });
       notifications.show({
@@ -175,9 +188,10 @@ export function EditNewsCard({ news, onCancel, onSave }: Props) {
             <Grid.Col span={6}>
               <TextInput
                 label="NGÀY ĐĂNG"
-                placeholder="2026-01-01"
+                type="datetime-local"
                 value={form.publishDate}
                 onChange={e => set('publishDate')(e.target.value)}
+                error={errors.publishDate}
                 classNames={{ label: classes.fieldLabel, input: classes.input }}
               />
             </Grid.Col>
