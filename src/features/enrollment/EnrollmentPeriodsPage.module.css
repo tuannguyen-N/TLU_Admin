@@ -1,20 +1,25 @@
 .page {
-  padding: 24px;
+  padding: 0px;
+  max-width: 1200px;
 }
 
 .pageHeader {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .pageTitle {
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 8px;
 }
 
 .pageDesc {
-  color: #6b7280;
+  font-size: 15px;
+  color: #6B7280;
   margin: 0;
+  max-width: 480px;
+  line-height: 1.6;
 }
 
 .toolbar {
@@ -96,5 +101,11 @@
   .filters {
     align-items: stretch;
     flex-direction: column;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 16px;
   }
 }

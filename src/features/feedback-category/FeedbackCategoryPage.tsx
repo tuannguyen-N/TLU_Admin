@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Button, Group, Loader, Center, Text } from '@mantine/core';
+import { Button, Group, Loader, Center, Text, TextInput } from '@mantine/core';
 import { IconRefresh, IconPlus } from '@tabler/icons-react';
+import { IconSearch } from '@tabler/icons-react';
 import { useFeedbackCategories } from './hooks/useFeedbackCategories';
 import { CategoryTable } from './components/CategoryTable';
 import { AddCategoryModal } from './components/AddCategoryModal';
@@ -17,6 +18,7 @@ export function FeedbackCategoryPage({ embedded = false }: Props) {
   const [addModalOpened, setAddModalOpened] = useState(false);
   const [editingCategory, setEditingCategory] = useState<FeedbackCategory | null>(null);
   const [editModalOpened, setEditModalOpened] = useState(false);
+  const [search, setSearch] = useState('');
 
   const handleEdit = (category: FeedbackCategory) => {
     setEditingCategory(category);
@@ -40,7 +42,16 @@ export function FeedbackCategoryPage({ embedded = false }: Props) {
       )}
 
       <div className={classes.header}>
-        <Group gap={8} ml="auto">
+        <TextInput
+          placeholder="Tìm kiếm danh mục"
+          size="sm"
+          leftSection={<IconSearch size={14} />}
+          className={classes.searchInput}
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+        />
+
+        <Group gap={8} className={classes.actions}>
           <Button
             variant="light"
             color="gray"
@@ -76,19 +87,29 @@ export function FeedbackCategoryPage({ embedded = false }: Props) {
 
       {!loading && !error && (
         <>
-          {categories.length === 0 ? (
-            <Center py={40}>
-              <Text c="dimmed">Không có danh mục nào</Text>
-            </Center>
-          ) : (
-            <div className={classes.table}>
-              <CategoryTable
-                categories={categories}
-                onEdit={handleEdit}
-                onCategoryDeleted={reload}
-              />
-            </div>
-          )}
+          {(() => {
+            const filtered = categories.filter((c) =>
+              `${c.name} ${c.description}`.toLowerCase().includes(search.toLowerCase())
+            );
+
+            if (filtered.length === 0) {
+              return (
+                <Center py={40}>
+                  <Text c="dimmed">Không có danh mục nào</Text>
+                </Center>
+              );
+            }
+
+            return (
+              <div className={classes.table}>
+                <CategoryTable
+                  categories={filtered}
+                  onEdit={handleEdit}
+                  onCategoryDeleted={reload}
+                />
+              </div>
+            );
+          })()}
         </>
       )}
 

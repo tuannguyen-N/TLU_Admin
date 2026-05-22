@@ -1,5 +1,4 @@
 .page {
-  padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -36,6 +35,13 @@
   &:focus {
     border-color: #3b82f6;
   }
+}
+
+.actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .table {
