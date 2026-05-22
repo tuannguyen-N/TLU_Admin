@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     TextInput, Button, Stack, Grid, Alert, NumberInput, Select
 } from '@mantine/core';
@@ -15,9 +15,9 @@ interface ValidationErrors {
     classCode?: string;
     className?: string;
     capacity?: string;
-    lecturerCode?: string;
-    subjectCode?: string;
-    semesterCode?: string;
+    lecturerId?: string;
+    subjectId?: string;
+    semesterId?: string;
 }
 
 interface Props {
@@ -34,9 +34,9 @@ export interface CourseClassFormDataInput {
     classCode: string;
     className: string;
     capacity: number | null;
-    lecturerCode: string;
-    subjectCode: string;
-    semesterCode: string;
+    lecturerId: string;
+    subjectId: string;
+    semesterId: string;
 }
 
 const SectionTitle = ({ icon: Icon, number, title }: { icon: any; number: number; title: string }) => (
@@ -54,13 +54,14 @@ export function AddCourseClassCard({ onCancel, onSave, lecturers, departments, f
         classCode: '',
         className: '',
         capacity: null,
-        lecturerCode: '',
-        subjectCode: '',
-        semesterCode: '',
+        lecturerId: '',
+        subjectId: '',
+        semesterId: '',
     });
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [loading, setLoading] = useState(false);
     const [apiError, setApiError] = useState<string | null>(null);
+    const [semesters, setSemesters] = useState<{ id: number; semesterName: string; semesterCode: string }[]>([]);
 
     const set = (key: keyof CourseClassFormDataInput) => (val: any) => {
         setForm(prev => ({ ...prev, [key]: val }));
@@ -81,14 +82,14 @@ export function AddCourseClassCard({ onCancel, onSave, lecturers, departments, f
         if (!form.capacity) {
             newErrors.capacity = 'Số lượng là bắt buộc';
         }
-        if (!form.lecturerCode.trim()) {
-            newErrors.lecturerCode = 'Mã giáo viên là bắt buộc';
+        if (!form.lecturerId.trim()) {
+            newErrors.lecturerId = 'Giảng viên là bắt buộc';
         }
-        if (!form.subjectCode.trim()) {
-            newErrors.subjectCode = 'Mã môn là bắt buộc';
+        if (!form.subjectId.trim()) {
+            newErrors.subjectId = 'Môn học là bắt buộc';
         }
-        if (!form.semesterCode.trim()) {
-            newErrors.semesterCode = 'Mã học kỳ là bắt buộc';
+        if (!form.semesterId.trim()) {
+            newErrors.semesterId = 'Học kỳ là bắt buộc';
         }
 
         setErrors(newErrors);
@@ -105,9 +106,9 @@ export function AddCourseClassCard({ onCancel, onSave, lecturers, departments, f
             classCode: form.classCode.trim(),
             className: form.className.trim(),
             capacity: form.capacity ?? 0,
-            lecturerCode: form.lecturerCode.trim(),
-            subjectCode: form.subjectCode.trim(),
-            semesterCode: form.semesterCode.trim(),
+            lecturerId: parseInt(form.lecturerId) || 0,
+            subjectId: parseInt(form.subjectId) || 0,
+            semesterId: parseInt(form.semesterId) || 0,
         };
 
         try {
@@ -128,7 +129,7 @@ export function AddCourseClassCard({ onCancel, onSave, lecturers, departments, f
         : lecturers;
 
     const lecturerSelectData = filteredLecturers.map(l => ({
-        value: l.lecturerCode,
+        value: String(l.id),
         label: `${l.lecturerCode} - ${l.fullName}`,
     }));
 
@@ -138,9 +139,25 @@ export function AddCourseClassCard({ onCancel, onSave, lecturers, departments, f
         : subjects;
 
     const subjectSelectData = filteredSubjects.map(s => ({
-        value: s.subjectCode,
+        value: String(s.id),
         label: `${s.subjectCode} - ${s.subjectName}`,
     }));
+
+    useEffect(() => {
+        // load semesters for selection
+        const load = async () => {
+            try {
+                const mod = await import('../../semesters/services');
+                const res = await mod.fetchSemesters({ page: 0, size: 100 });
+                setSemesters(res.semesters || []);
+            } catch (e) {
+                // ignore
+            }
+        };
+        load();
+    }, []);
+
+    const semesterSelectData = semesters.map(s => ({ value: String(s.id), label: `${s.semesterCode} - ${s.semesterName}` }));
 
     return (
         <div className={classes.page}>
@@ -194,23 +211,26 @@ export function AddCourseClassCard({ onCancel, onSave, lecturers, departments, f
                                 required
                                 placeholder="Chọn giảng viên"
                                 data={lecturerSelectData}
-                                value={form.lecturerCode}
-                                onChange={val => set('lecturerCode')(val ?? '')}
-                                error={errors.lecturerCode}
+                                value={form.lecturerId}
+                                onChange={val => set('lecturerId')(val ?? '')}
+                                error={errors.lecturerId}
                                 classNames={{ label: classes.fieldLabel, input: classes.input }}
                                 searchable
                                 clearable
                             />
                         </Grid.Col>
                         <Grid.Col span={4}>
-                            <TextInput
-                                label="MÃ HỌC KỲ"
+                            <Select
+                                label="HỌC KỲ"
                                 required
-                                placeholder="HK1-2025"
-                                value={form.semesterCode}
-                                onChange={e => set('semesterCode')(e.target.value)}
-                                error={errors.semesterCode}
+                                placeholder="Chọn học kỳ"
+                                data={semesterSelectData}
+                                value={form.semesterId}
+                                onChange={val => set('semesterId')(val ?? '')}
+                                error={errors.semesterId}
                                 classNames={{ label: classes.fieldLabel, input: classes.input }}
+                                searchable
+                                clearable
                             />
                         </Grid.Col>
                         <Grid.Col span={6}>
@@ -219,9 +239,9 @@ export function AddCourseClassCard({ onCancel, onSave, lecturers, departments, f
                                 required
                                 placeholder="Chọn môn học"
                                 data={subjectSelectData}
-                                value={form.subjectCode}
-                                onChange={val => set('subjectCode')(val ?? '')}
-                                error={errors.subjectCode}
+                                value={form.subjectId}
+                                onChange={val => set('subjectId')(val ?? '')}
+                                error={errors.subjectId}
                                 classNames={{ label: classes.fieldLabel, input: classes.input }}
                                 searchable
                                 clearable

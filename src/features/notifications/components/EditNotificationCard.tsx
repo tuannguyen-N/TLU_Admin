@@ -49,6 +49,12 @@ const referenceTypeData = [
   { value: 'EXAM_SCHEDULE', label: 'EXAM_SCHEDULE' },
 ];
 
+const sourceData = [
+  { value: 'FACULTY', label: 'FACULTY' },
+  { value: 'SYSTEM', label: 'SYSTEM' },
+  { value: 'LECTURER', label: 'LECTURER' },
+];
+
 interface SelectItem {
   id: number;
   label: string;
@@ -62,7 +68,8 @@ export function EditNotificationCard({ notification, onCancel, onSave }: Props) 
     targetIds: (notification.targetIds || []).map(Number),
     deadLine: notification.deadLine || '',
     isImportant: notification.isImportant,
-    referenceType: notification.referenceType || '',
+  referenceType: notification.referenceType || '',
+  source: (notification as any).source || '',
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [loading, setLoading] = useState(false);
@@ -201,7 +208,7 @@ export function EditNotificationCard({ notification, onCancel, onSave }: Props) 
         content: form.content.trim(),
         targetType: form.targetType,
         targetIds: isGlobal ? [] : form.targetIds,
-        createdBy: notification.createdBy,
+  createdBy: form.source ? form.source : notification.createdBy,
         deadLine: form.deadLine || null,
         isImportant: form.isImportant,
         referenceType: form.referenceType.trim() || null,
@@ -291,6 +298,17 @@ export function EditNotificationCard({ notification, onCancel, onSave }: Props) 
                 data={referenceTypeData}
                 value={form.referenceType}
                 onChange={val => set('referenceType')(val || '')}
+                clearable
+                classNames={{ label: classes.fieldLabel, input: classes.input }}
+              />
+            </Grid.Col>
+            <Grid.Col span={6}>
+              <Select
+                label="NGUỒN GỬI"
+                placeholder="Chọn nguồn gửi"
+                data={sourceData}
+                value={form.source || null}
+                onChange={val => set('source')(val || '')}
                 clearable
                 classNames={{ label: classes.fieldLabel, input: classes.input }}
               />

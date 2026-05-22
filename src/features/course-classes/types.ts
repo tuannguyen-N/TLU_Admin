@@ -47,9 +47,9 @@ export interface CourseClassFormData {
   classCode: string;
   className: string;
   capacity: number;
-  lecturerCode: string;
-  subjectCode: string;
-  semesterCode: string;
+  lecturerId: number;
+  subjectId: number;
+  semesterId: number;
 }
 
 export interface Schedule {
