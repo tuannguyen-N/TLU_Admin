@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMsal } from "@azure/msal-react";
 import { useNavigate } from "react-router-dom";
 import { Center, Loader, Text, Stack, Button } from "@mantine/core";
 import { API_BASE_URL } from "../../config/api";
+import { loginRequest } from "../../config/msalConfig";
 
 interface LoginResponse {
   code: number;
@@ -21,18 +22,29 @@ export function AuthCallback() {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const processedRef = useRef(false);
 
   useEffect(() => {
+    if (processedRef.current) return;
+    processedRef.current = true;
+
     const processCallback = async () => {
       try {
-        const result = await instance.handleRedirectPromise();
+        const account = instance.getActiveAccount() ?? instance.getAllAccounts()[0] ?? null;
 
-        if (!result) {
-          navigate("/login");
+        if (!account) {
+          navigate("/login", { replace: true });
           return;
         }
 
-        console.log("Microsoft Access Token:", result.accessToken);
+        if (!instance.getActiveAccount()) {
+          instance.setActiveAccount(account);
+        }
+
+        const tokenResult = await instance.acquireTokenSilent({
+          ...loginRequest,
+          account,
+        });
 
         const response = await fetch(`${API_BASE_URL}/oauth2/login`, {
           method: "POST",
@@ -40,7 +52,7 @@ export function AuthCallback() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            accessToken: result.accessToken,
+            accessToken: tokenResult.accessToken,
             deviceId: "",
             platform: "web",
             fcmToken: "",
@@ -49,14 +61,15 @@ export function AuthCallback() {
 
         const resData: LoginResponse = await response.json();
 
-        if (resData.code === 0 && resData.data) {
-          localStorage.setItem("authToken", resData.data.token);
-          localStorage.setItem("userInfo", JSON.stringify(resData.data));
-          navigate("/dashboard");
-        } else {
-          setError(resData.message || "Đăng nhập thất bại");
+        if (!response.ok || !(resData.code === 0 && resData.data)) {
+          setError(resData.message || `Đăng nhập thất bại (${response.status})`);
           setIsLoading(false);
+          return;
         }
+
+        localStorage.setItem("authToken", resData.data.token);
+        localStorage.setItem("userInfo", JSON.stringify(resData.data));
+        navigate("/dashboard", { replace: true });
       } catch (err) {
         console.error("Auth error:", err);
         setError(err instanceof Error ? err.message : "Đăng nhập thất bại");

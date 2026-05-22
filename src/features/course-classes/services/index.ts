@@ -1,5 +1,5 @@
 import { apiClient } from '../../../lib/api-client';
-import type { CourseClassFormData } from '../types';
+import type { AttendanceSessionToken, AttendanceStatistics, CourseClassFormData } from '../types';
 
 interface ApiResponse<T> {
   code: number;
@@ -37,7 +37,7 @@ export const fetchCourseClassesAPI = async (params: {
   page?: number;
   size?: number;
 }) => {
-  const { khoa, page = 0, size = 10 } = params;
+  const { khoa = '', page = 0, size = 10 } = params;
   const response = await apiClient<CourseClassApiListResponse>(
     '/course-classes/all',
     {
@@ -171,6 +171,26 @@ export const createSchedulesAPI = async (courseClassId: number, payload: UpdateS
     {
       method: 'POST',
       body: JSON.stringify(payload),
+    }
+  );
+  return response.data;
+};
+
+export const fetchAttendanceStatisticsAPI = async (courseClassId: number) => {
+  const response = await apiClient<ApiResponse<AttendanceStatistics>>(
+    `/attendance/statistics/${courseClassId}`,
+    {
+      method: 'GET',
+    }
+  );
+  return response.data;
+};
+
+export const openAttendanceSessionAPI = async (courseClassId: number) => {
+  const response = await apiClient<ApiResponse<AttendanceSessionToken>>(
+    `/attendance/session/${courseClassId}`,
+    {
+      method: 'GET',
     }
   );
   return response.data;

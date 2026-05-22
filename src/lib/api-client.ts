@@ -16,9 +16,7 @@ function buildUrl(endpoint: string, params?: Record<string, string | number | bo
 }
 
 function getAuthToken(): string {
-  const token = localStorage.getItem("authToken") || "";
-  console.log("[API] authToken from localStorage:", token ? `${token.substring(0, 20)}...` : "empty");
-  return token;
+  return localStorage.getItem('authToken') || '';
 }
 
 export async function apiClient<T>(
@@ -26,12 +24,7 @@ export async function apiClient<T>(
   options: RequestOptions = {}
 ): Promise<T> {
   const { params, ...fetchOptions } = options;
-  // const token = getAuthToken();
-  const token ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInJvbGVzIjpudWxsLCJzaWduIjpudWxsLCJpYXQiOjE3NzU3OTMxNTc1NzksImV4cCI6MTc3NTk2NzU3NTc5fQ.OcuqDvFuHymaB9AB9bHgaAGY04DlYL6pUjKqJWMb328";
-
-  console.log("[API] calling:", buildUrl(endpoint, params));
-  console.log("[API] token being used:", token ? `Bearer ${token.substring(0, 20)}...` : "NO TOKEN");
-  console.log("[API] fetchOptions:", fetchOptions);
+  const token = getAuthToken();
 
   const isFormData = fetchOptions.body instanceof FormData;
 
@@ -55,14 +48,10 @@ export async function apiClient<T>(
     });
   }
 
-  console.log("[API] final headers:", headers);
-
   const response = await fetch(buildUrl(endpoint, params), {
     ...fetchOptions,
     headers,
   });
-
-  console.log("[API] status:", response.status);
 
   if (!response.ok) {
     let errorMessage = `Failed: ${response.status}`;
@@ -80,7 +69,6 @@ export async function apiClient<T>(
   }
 
   const json = await response.json();
-  console.log("[API] success:", json);
 
   return json as T;
 }

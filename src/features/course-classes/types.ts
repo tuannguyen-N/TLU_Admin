@@ -61,3 +61,20 @@ export interface Schedule {
   endTime: string;
   room: string;
 }
+
+export interface AttendanceStudentSummary {
+  studentCode: string;
+  studentName: string;
+  presentCount: number;
+  absentCount: number;
+  attendanceRate: number;
+}
+
+export interface AttendanceStatistics {
+  classCode: string;
+  className: string;
+  totalSessions: number;
+  students: AttendanceStudentSummary[];
+}
+
+export type AttendanceSessionToken = string;

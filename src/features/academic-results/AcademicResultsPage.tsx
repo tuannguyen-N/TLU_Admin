@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Modal } from '@mantine/core';
 import {
   IconCode, IconBuildingBank, IconHeartbeat,
@@ -38,6 +38,7 @@ const colorMap: Record<string, string> = {
 
 export function AcademicResultsPage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const locationState = (location.state ?? {}) as { selectedFaculty?: FacultyOption };
   const [selectedFaculty, setSelectedFaculty] = useState<FacultyOption | null>(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -68,6 +69,7 @@ export function AcademicResultsPage() {
   const handleBack = () => {
     setSelectedFaculty(null);
     setPage(0);
+    navigate('/academic-results', { replace: true, state: {} });
   };
 
   const handleAddSuccess = () => {

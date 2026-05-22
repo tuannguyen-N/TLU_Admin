@@ -47,13 +47,28 @@ export function EditMajorCard({ major, onCancel, onSave }: Props) {
   const [loadingFaculties, setLoadingFaculties] = useState(true);
 
   useEffect(() => {
+    setForm({
+      majorCode: major.majorCode,
+      majorName: major.majorName,
+      facultyId: null,
+    });
+
     fetchFaculties().then(data => {
       setFaculties(data);
+      const majorFacultyId = Number(major.facultyCode);
+      const currentFaculty = data.find((faculty) => (
+        faculty.facultyCode === major.facultyCode
+        || (!Number.isNaN(majorFacultyId) && faculty.id === majorFacultyId)
+      ));
+      setForm((prev) => ({
+        ...prev,
+        facultyId: currentFaculty?.id ?? prev.facultyId,
+      }));
       setLoadingFaculties(false);
     }).catch(() => {
       setLoadingFaculties(false);
     });
-  }, []);
+  }, [major.id, major.majorCode, major.majorName, major.facultyCode]);
 
   const set = (key: 'majorCode' | 'majorName' | 'facultyId') => (val: any) => {
     setForm(prev => ({ ...prev, [key]: val }));

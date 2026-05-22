@@ -63,13 +63,13 @@ function formatDateTime(value: string): string {
 function getEnrollmentStatus(status: string) {
   switch (status) {
     case 'PENDING':
-      return { label: 'Chờ xác nhận', color: 'yellow' };
+      return { label: 'Chờ xác nhận', color: 'blue' };
     case 'CONFIRMED':
-      return { label: 'Đã xác nhận', color: 'green' };
+      return { label: 'Đã xác nhận', color: 'teal' };
     case 'CANCELLED':
       return { label: 'Đã hủy', color: 'red' };
     default:
-      return { label: status, color: 'gray' };
+      return { label: status, color: 'violet' };
   }
 }
 

@@ -10,6 +10,11 @@ import { notifications } from '@mantine/notifications';
 import classes from './AddNewsCard.module.css';
 import { createNews } from '../services';
 
+function normalizeDateTimeValue(value: string): string {
+  if (!value) return '';
+  return value.length === 16 ? `${value}:00` : value;
+}
+
 interface ValidationErrors {
   title?: string;
   newsUrl?: string;
@@ -85,7 +90,7 @@ export function AddNewsCard({ onCancel, onSave }: Props) {
         excerpt: form.excerpt.trim(),
         newsUrl: form.newsUrl.trim(),
         source: form.source.trim(),
-        publishDate: form.publishDate.trim(),
+        publishDate: normalizeDateTimeValue(form.publishDate.trim()),
         file,
       });
       notifications.show({
@@ -170,7 +175,7 @@ export function AddNewsCard({ onCancel, onSave }: Props) {
             <Grid.Col span={6}>
               <TextInput
                 label="NGÀY ĐĂNG"
-                placeholder="2026-01-01"
+                type="datetime-local"
                 value={form.publishDate}
                 onChange={e => set('publishDate')(e.target.value)}
                 classNames={{ label: classes.fieldLabel, input: classes.input }}

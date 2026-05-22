@@ -67,7 +67,7 @@ interface SubjectDetailApiResponse {
       id: number;
       minSubjectsRequired: number;
       description: string;
-      items: Array<{          x
+      items: Array<{
         subjectCode: string;
         subjectName: string;
       }>;
@@ -141,7 +141,6 @@ export async function fetchSubjectsAPI(params: FetchSubjectsParams): Promise<Fet
 
     const mappedSubjects = filteredSubjects.map(mapApiToSubject);
 
-    console.log('[DEBUG] All subjects from API:', mappedSubjects);
 
     return {
       subjects: mappedSubjects,

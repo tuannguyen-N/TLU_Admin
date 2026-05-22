@@ -24,17 +24,6 @@ interface DetailLocationState {
   academicResult?: AcademicResult;
 }
 
-function getSemesterOrderKey(label: string): number {
-  const lower = label.toLowerCase();
-  const semesterMatch = lower.match(/hk\s*(\d+)/i);
-  const yearMatch = lower.match(/(\d{4})\s*-\s*(\d{4})/);
-
-  const semesterNo = semesterMatch ? Number(semesterMatch[1]) : 0;
-  const startYear = yearMatch ? Number(yearMatch[1]) : 0;
-
-  return startYear * 10 + semesterNo;
-}
-
 export function AcademicResultDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -118,11 +107,8 @@ export function AcademicResultDetailPage() {
     );
   }, [studentResult, selectedProgramCode]);
 
-  const sortedSemesterResults = useMemo<SemesterResult[]>(() => {
-    if (!selectedProgram) return [];
-    return [...selectedProgram.semesterResults].sort(
-      (a, b) => getSemesterOrderKey(a.semester) - getSemesterOrderKey(b.semester)
-    );
+  const semesterResults = useMemo<SemesterResult[]>(() => {
+    return selectedProgram?.semesterResults ?? [];
   }, [selectedProgram]);
 
   const programSummary = useMemo(() => {
@@ -251,12 +237,12 @@ export function AcademicResultDetailPage() {
                 {selectedProgram.studyProgramName} ({selectedProgram.studyProgramCode})
               </p>
 
-              {sortedSemesterResults.length === 0 ? (
+              {semesterResults.length === 0 ? (
                 <Center py={24}>
                   <Text c="dimmed">Chưa có học kỳ nào trong CTĐT này.</Text>
                 </Center>
               ) : (
-                sortedSemesterResults.map((semester) => (
+                semesterResults.map((semester) => (
                   <div key={`${selectedProgram.studyProgramCode}-${semester.semester}`} className={classes.semesterBlock}>
                     <span className={classes.semesterChip}>{semester.semester}</span>
                     <table className={classes.subjectTable}>

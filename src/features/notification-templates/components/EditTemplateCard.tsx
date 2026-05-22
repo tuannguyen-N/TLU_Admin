@@ -19,7 +19,7 @@ interface ValidationErrors {
 interface Props {
   template: NotificationTemplate;
   onCancel: () => void;
-  onSave: () => void;
+  onSave: (updatedTemplate: NotificationTemplate) => void;
 }
 
 const SectionTitle = ({ icon: Icon, number, title }: { icon: any; number: number; title: string }) => (
@@ -68,7 +68,12 @@ export function EditTemplateCard({ template, onCancel, onSave }: Props) {
       };
       await updateNotificationTemplate(template.id, payload);
       mantineNotifications.show({ title: 'Thành công', message: 'Cập nhật mẫu thông báo thành công', color: 'green' });
-      onSave();
+      onSave({
+        ...template,
+        code: payload.code,
+        name: payload.name,
+        content: payload.content,
+      });
     } catch (err) {
       setApiError(err instanceof Error ? err.message : 'Đã xảy ra lỗi');
       mantineNotifications.show({ title: 'Lỗi', message: 'Cập nhật mẫu thông báo thất bại', color: 'red' });

@@ -1,7 +1,6 @@
 import {
     TextInput, Select, Button, Stack, Grid, Alert, LoadingOverlay
 } from '@mantine/core';
-import { DateInput } from '@mantine/dates';
 import {
     IconCalendar, IconX, IconDeviceFloppy
 } from '@tabler/icons-react';
@@ -221,15 +220,14 @@ export function EditSemesterCard({ semester, onCancel, onSave }: Props) {
                             />
                         </Grid.Col>
                         <Grid.Col span={6}>
-                            <DateInput
+                            <TextInput
                                 label="NGÀY BẮT ĐẦU"
+                                type="date"
                                 required
-                                placeholder="Chọn ngày"
-                                value={form.startDate}
-                                onChange={val => set('startDate')(val)}
+                                value={form.startDate ? formatDateToApi(form.startDate) : ''}
+                                onChange={e => set('startDate')(parseDate(e.target.value))}
                                 error={errors.startDate}
-                                classNames={{ label: classes.fieldLabel, input: classes.dateInput }}
-                                valueFormat="YYYY-MM-DD"
+                                classNames={{ label: classes.fieldLabel, input: classes.input }}
                             />
                         </Grid.Col>
                         <Grid.Col span={6}>
