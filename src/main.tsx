@@ -9,6 +9,7 @@ import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import './index.css'
 import App from './App.tsx'
+import { RoleProvider } from './contexts/RoleContext';
 
 async function bootstrap() {
   const msalInstance = new PublicClientApplication(msalConfig);
@@ -36,7 +37,9 @@ async function bootstrap() {
       <MsalProvider instance={msalInstance}>
         <MantineProvider>
           <Notifications position="top-right" />
-          <App />
+          <RoleProvider>
+            <App />
+          </RoleProvider>
         </MantineProvider>
       </MsalProvider>
     </StrictMode>

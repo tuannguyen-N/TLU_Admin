@@ -22,6 +22,7 @@ import { EnrollmentPeriodsPage } from '../features/enrollment/EnrollmentPeriodsP
 import { ExamsPage } from '../features/exams/ExamsPage';
 import { AcademicResultsPage } from '../features/academic-results/AcademicResultsPage';
 import { NotificationTemplatesPage } from '../features/notification-templates/NotificationTemplatesPage';
+import AccessDenied from '../pages/AccessDenied';
 import { AcademicResultDetailPage } from '../features/academic-results/components/AcademicResultDetailPage';
 import { FeedbackPage } from '../features/feedback/FeedbackPage';
 
@@ -48,7 +49,8 @@ export default function AppRoutes() {
       <Route path="/news" element={<ProtectedRoute><NewsPage /></ProtectedRoute>} />
       <Route path="/requests" element={<ProtectedRoute><RequestsPage /></ProtectedRoute>} />
       <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-      <Route path="/notification-templates" element={<NotificationTemplatesPage />} />
+      <Route path="/notification-templates" element={<ProtectedRoute><NotificationTemplatesPage /></ProtectedRoute>} />
+      <Route path="/access-denied" element={<AccessDenied />} />
       <Route path="/payments" element={<ProtectedRoute><PaymentsPage /></ProtectedRoute>} />
       <Route path="/documents" element={<ProtectedRoute><DocumentsPage /></ProtectedRoute>} />
       <Route path="/enrollment-periods" element={<ProtectedRoute><EnrollmentPeriodsPage /></ProtectedRoute>} />

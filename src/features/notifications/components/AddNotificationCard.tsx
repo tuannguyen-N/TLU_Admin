@@ -190,7 +190,7 @@ export function AddNotificationCard({ onCancel, onSave }: Props) {
         content: form.content.trim(),
         targetType: form.targetType,
         targetIds: isGlobal ? [] : form.targetIds,
-        createdBy: 'Admin',
+        createdBy: 'SYSTEM',
         deadLine: form.deadLine || null,
         isImportant: form.isImportant,
         referenceType: form.referenceType.trim() || null,

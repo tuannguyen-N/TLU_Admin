@@ -22,6 +22,7 @@ import {
   IconMessageCircle2,
 } from '@tabler/icons-react';
 import { Group } from '@mantine/core';
+import { usePermission } from '../../hooks/usePermission';
 import logo from '../../assets/TLU_Standard_version-03.png';
 import classes from './Navbar.module.css';
 
@@ -61,7 +62,11 @@ export function Navbar() {
     instance.logoutRedirect();
   };
 
-  const links = data.map((item) => (
+  const { canAccessPage } = usePermission();
+
+  const visible = data.filter((d) => canAccessPage(d.link));
+
+  const links = visible.map((item) => (
     <NavLink
       to={item.link}
       className={({ isActive }) => (isActive ? `${classes.link} ${classes.active}` : classes.link)}

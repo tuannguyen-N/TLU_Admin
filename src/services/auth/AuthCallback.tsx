@@ -13,6 +13,7 @@ interface LoginResponse {
     name: string;
     avatar: string;
     token: string;
+    role?: 'admin' | 'lecturer' | 'staff';
   } | null;
   message: string;
 }
@@ -68,6 +69,7 @@ export function AuthCallback() {
         }
 
         localStorage.setItem("authToken", resData.data.token);
+        // Persist userInfo including role when provided by backend
         localStorage.setItem("userInfo", JSON.stringify(resData.data));
         navigate("/dashboard", { replace: true });
       } catch (err) {
