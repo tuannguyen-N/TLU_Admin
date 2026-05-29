@@ -296,22 +296,22 @@ export function CourseClassesPage() {
     const handleUpdateCourseClass = async (payload: UpdateCourseClassPayload) => {
         if (!editingCourseClass) return;
         try {
-            const sendPayload = {
-                ...(payload as unknown as CourseClassFormData),
-                lecturerCode:
-                    (payload as any).lecturerCode ??
-                    (editingCourseClass as any).lecturerCode ??
-                    (editingCourseClass as any).lecturer?.code ??
-                    '',
-                subjectCode:
-                    (payload as any).subjectCode ??
-                    (editingCourseClass as any).subjectCode ??
-                    (editingCourseClass as any).subject?.code ??
-                    '',
-                semesterCode:
-                    (payload as any).semesterCode ??
-                    (editingCourseClass as any).semesterCode ??
-                    '',
+            // build payload using numeric ids (lecturerId, subjectId, semesterId)
+            const sendPayload: CourseClassFormData = {
+                classCode: (payload as any).classCode ?? editingCourseClass.classCode,
+                className: (payload as any).className ?? editingCourseClass.className,
+                capacity: (payload as any).capacity ?? editingCourseClass.capacity,
+                lecturerId:
+                    (payload as any).lecturerId ??
+                    (lecturers.find(l => l.lecturerCode === (editingCourseClass as any).lecturerCode)?.id) ??
+                    (editingCourseClass as any).lecturer?.id ?? 0,
+                subjectId:
+                    (payload as any).subjectId ??
+                    (subjects.find(s => s.subjectCode === (editingCourseClass as any).subjectCode)?.id) ??
+                    (editingCourseClass as any).subject?.id ?? 0,
+                semesterId:
+                    (payload as any).semesterId ??
+                    (editingCourseClass.semester?.id) ?? 0,
             } as CourseClassFormData;
 
             await updateCourseClassAPI(editingCourseClass.id, sendPayload);

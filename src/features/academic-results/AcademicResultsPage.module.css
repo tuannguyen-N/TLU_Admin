@@ -1,22 +1,17 @@
 .page {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  padding: 32px;
-  min-height: 100vh;
-  background: #f5f6fa;
+  padding: 0px;
+  max-width: 1200px;
 }
 
 .pageHeader {
-  margin-bottom: 0;
+  margin-bottom: 32px;
 }
 
 .pageTitle {
   font-size: 28px;
   font-weight: 800;
-  color: #1a2b5e;
-  margin: 0 0 6px;
-  letter-spacing: -0.5px;
+  color: #111827;
+  margin: 0 0 8px;
 }
 
 .pageDesc {

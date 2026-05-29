@@ -8,6 +8,7 @@ export interface Notification {
   deadLine: string | null;
   isImportant: boolean;
   referenceType: string | null;
+  source?: 'FACULTY' | 'SYSTEM' | 'LECTURER';
 }
 
 export interface NotificationFormData {
@@ -20,6 +21,7 @@ export interface NotificationFormData {
   deadLine: string | null;
   isImportant: boolean;
   referenceType: string | null;
+  source?: 'FACULTY' | 'SYSTEM' | 'LECTURER';
 }
 
 export interface FetchNotificationsParams {

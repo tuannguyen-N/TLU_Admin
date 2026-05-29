@@ -57,7 +57,6 @@ export function FeedbackPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               classNames={{ input: classes.searchInput }}
-              style={{ flex: 1, maxWidth: 400 }}
             />
             <Group gap={8}>
               <Button

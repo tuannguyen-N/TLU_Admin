@@ -43,8 +43,14 @@ const targetTypeData = [
 ];
 
 const referenceTypeData = [
-  { value: 'TUITION', label: 'TUITION' },
-  { value: 'EXAM_SCHEDULE', label: 'EXAM_SCHEDULE' },
+  { value: 'TUITION', label: 'Học phí' },
+  { value: 'EXAM_SCHEDULE', label: 'Lịch thi' },
+];
+
+const sourceData = [
+  { value: 'FACULTY', label: 'Khoa' },
+  { value: 'SYSTEM', label: 'Hệ thống' },
+  { value: 'LECTURER', label: 'Giảng viên' },
 ];
 
 interface SelectItem {
@@ -60,7 +66,8 @@ export function AddNotificationCard({ onCancel, onSave }: Props) {
     targetIds: [] as number[],
     deadLine: '',
     isImportant: false,
-    referenceType: '',
+  referenceType: '',
+  source: '',
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [loading, setLoading] = useState(false);
@@ -190,10 +197,11 @@ export function AddNotificationCard({ onCancel, onSave }: Props) {
         content: form.content.trim(),
         targetType: form.targetType,
         targetIds: isGlobal ? [] : form.targetIds,
-        createdBy: 'SYSTEM',
-        deadLine: form.deadLine || null,
-        isImportant: form.isImportant,
+        createdBy: (form.source ? form.source : 'SYSTEM'),
+              deadLine: form.deadLine || null,
+              isImportant: form.isImportant,
         referenceType: form.referenceType.trim() || null,
+        ...(form.source ? { source: form.source as 'FACULTY' | 'SYSTEM' | 'LECTURER' } : {}),
       };
       await createNotification(payload);
       mantineNotifications.show({ title: 'Thành công', message: 'Tạo thông báo thành công', color: 'green' });
@@ -280,6 +288,17 @@ export function AddNotificationCard({ onCancel, onSave }: Props) {
                 data={referenceTypeData}
                 value={form.referenceType}
                 onChange={val => set('referenceType')(val || '')}
+                clearable
+                classNames={{ label: classes.fieldLabel, input: classes.input }}
+              />
+            </Grid.Col>
+            <Grid.Col span={6}>
+              <Select
+                label="NGUỒN GỬI"
+                placeholder="Chọn nguồn gửi"
+                data={sourceData}
+                value={form.source || null}
+                onChange={val => set('source')(val || '')}
                 clearable
                 classNames={{ label: classes.fieldLabel, input: classes.input }}
               />
