@@ -29,14 +29,13 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/login" replace />;
   }
 
+  // Wait for role context initialization to avoid false negatives
+  if (!roleCtx.initialized) return null;
+
   // If user is authenticated but does not have page access, redirect
-  try {
-    const allowed = roleCtx.hasPageAccess(location.pathname);
-    if (!allowed) {
-      return <Navigate to="/access-denied" replace />;
-    }
-  } catch (err) {
-    // if role context not ready or error, fallback to allow
+  const allowed = roleCtx.hasPageAccess(location.pathname);
+  if (!allowed) {
+    return <Navigate to="/access-denied" replace />;
   }
 
   return <>{children}</>;
