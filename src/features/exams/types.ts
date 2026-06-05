@@ -1,3 +1,5 @@
+export type ExamType = 'MIDTERM' | 'FINAL';
+
 export interface Exam {
   id: number;
   subjectCode: string;
@@ -8,7 +10,7 @@ export interface Exam {
   examRoom: string;
   examLocation: string;
   examFormat: 'Online' | 'Offline' | string;
-  examType: string;
+  examType: ExamType;
   note: string;
 }
 
@@ -21,7 +23,7 @@ export interface ExamFormData {
   examRoom: string;
   examLocation?: string;
   examFormat?: 'Online' | 'Offline';
-  examType?: string;
+  examType?: ExamType;
   note?: string;
 }
 

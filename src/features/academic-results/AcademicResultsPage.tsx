@@ -10,6 +10,8 @@ import { useAcademicResults } from './hooks/useAcademicResults';
 import { AcademicResultList } from './components/AcademicResultList';
 import { AddAcademicResultCard } from './components/AddAcademicResultCard';
 import { ImportAcademicResultCard } from './components/ImportAcademicResultCard';
+import { calcSemesterSummary, fetchSemesters } from './services';
+import { useRole } from '../../contexts/RoleContext';
 import classes from './AcademicResultsPage.module.css';
 import type { FacultyOption } from '../subjects/types';
 
@@ -56,6 +58,12 @@ export function AcademicResultsPage() {
     reload,
   } = useAcademicResults(selectedFaculty?.value ?? '');
 
+  const { role, initialized } = useRole();
+  const [summaryModalOpen, setSummaryModalOpen] = useState(false);
+  const [semesters, setSemesters] = useState<Array<{ id: number; semesterName: string }>>([]);
+  const [selectedSemesterId, setSelectedSemesterId] = useState<number | null>(null);
+  const [calculating, setCalculating] = useState(false);
+
   useEffect(() => {
     if (locationState.selectedFaculty && !selectedFaculty) {
       setSelectedFaculty(locationState.selectedFaculty);
@@ -80,6 +88,36 @@ export function AcademicResultsPage() {
   const handleImportSuccess = () => {
     setImportModalOpen(false);
     reload();
+  };
+
+  const openSummaryModal = async () => {
+    setSummaryModalOpen(true);
+    try {
+      const s = await fetchSemesters();
+      setSemesters(s.map(ss => ({ id: ss.id, semesterName: ss.semesterName })));
+    } catch (err) {
+      console.error('Failed to load semesters', err);
+      setSemesters([]);
+    }
+  };
+
+  const handleCalculateSummary = async () => {
+    if (!selectedSemesterId) {
+      alert('Vui lòng chọn học kỳ');
+      return;
+    }
+    if (!confirm('Bạn có chắc muốn tính tổng kết cho học kỳ này?')) return;
+    setCalculating(true);
+    try {
+      await calcSemesterSummary(selectedSemesterId);
+      alert('Tính tổng kết học kỳ thành công');
+      setSummaryModalOpen(false);
+    } catch (err: any) {
+      console.error(err);
+      alert('Lỗi khi tính tổng kết: ' + (err?.message || String(err)));
+    } finally {
+      setCalculating(false);
+    }
   };
 
   if (selectedFaculty) {
@@ -135,6 +173,16 @@ export function AcademicResultsPage() {
       <div className={classes.pageHeader}>
         <h1 className={classes.pageTitle}>Kết quả học tập</h1>
         <p className={classes.pageDesc}>Chọn khoa để xem danh sách kết quả học tập của sinh viên</p>
+        {initialized && role === 'ADMIN' && (
+          <div style={{ marginTop: 12 }}>
+            <button
+              style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #1f2937', background: '#111827', color: '#fff' }}
+              onClick={openSummaryModal}
+            >
+              Tính tổng kết học kỳ (Admin)
+            </button>
+          </div>
+        )}
       </div>
       <div className={classes.facultyGrid}>
         {faculties.map((faculty) => {
@@ -160,6 +208,39 @@ export function AcademicResultsPage() {
           );
         })}
       </div>
+      <Modal
+        opened={summaryModalOpen}
+        onClose={() => setSummaryModalOpen(false)}
+        title="Tính tổng kết học kỳ"
+        size="md"
+        centered
+      >
+        <div>
+          <div style={{ marginBottom: 12 }}>
+            <label>Học kỳ</label>
+            <select
+              value={selectedSemesterId ?? ''}
+              onChange={(e) => setSelectedSemesterId(e.target.value ? Number(e.target.value) : null)}
+              style={{ display: 'block', width: '100%', padding: 8, marginTop: 6 }}
+            >
+              <option value="">-- Chọn học kỳ --</option>
+              {semesters.map(s => (
+                <option key={s.id} value={s.id}>{s.semesterName} (id: {s.id})</option>
+              ))}
+            </select>
+          </div>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+            <button onClick={() => setSummaryModalOpen(false)} style={{ padding: '8px 12px' }}>Hủy</button>
+            <button onClick={handleCalculateSummary} disabled={calculating} style={{ padding: '8px 12px', background: '#111827', color: '#fff', borderRadius: 6 }}>
+              {calculating ? 'Đang tính...' : 'Tính tổng kết'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
+
+// Modal rendered at root of component to pick semester and trigger calculation
+// (Mantine Modal can be placed anywhere inside component tree)
+

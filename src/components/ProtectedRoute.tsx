@@ -35,6 +35,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   // If user is authenticated but does not have page access, redirect
   const allowed = roleCtx.hasPageAccess(location.pathname);
   if (!allowed) {
+    // Diagnostic log to help debug unexpected access-denied cases
+    try {
+      // eslint-disable-next-line no-console
+      console.warn('[ProtectedRoute] access denied', { role: roleCtx.role, path: location.pathname });
+    } catch (e) {}
     return <Navigate to="/access-denied" replace />;
   }
 
