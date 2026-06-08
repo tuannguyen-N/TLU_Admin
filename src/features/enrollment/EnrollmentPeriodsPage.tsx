@@ -319,7 +319,6 @@ export function EnrollmentPeriodsPage() {
       <div className={classes.toolbar}>
         <div className={classes.filters}>
           <Select
-            label="Lọc theo học kỳ"
             placeholder="Tất cả học kỳ"
             data={semesterFilterOptions}
             value={semesterFilter || null}
