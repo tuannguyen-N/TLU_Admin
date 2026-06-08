@@ -1,5 +1,5 @@
 import { apiClient } from '../../../lib/api-client';
-import type { Exam, ExamFormData } from '../types';
+import type { Exam, ExamFormData, ExamType } from '../types';
 
 interface ApiResponse<T> {
   code: number;
@@ -17,7 +17,7 @@ interface ExamApiResponse {
   examRoom: string;
   examLocation: string;
   examFormat: string;
-  examType: string;
+  examType: ExamType;
   note: string;
 }
 
@@ -74,7 +74,7 @@ export async function fetchExamsAPI(params: FetchExamsParams): Promise<FetchExam
       examRoom: e.examRoom,
       examLocation: e.examLocation,
       examFormat: e.examFormat,
-      examType: e.examType,
+      examType: e.examType as ExamType,
       note: e.note,
     })),
     totalElements: response.data.total_elements,

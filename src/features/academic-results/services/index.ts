@@ -382,3 +382,22 @@ export async function deleteAcademicResultAPI(subjectResultId: number): Promise<
     throw new Error(response.message || 'Delete academic result failed');
   }
 }
+
+// Admin: calculate semester summary for all students (run at end of semester)
+export async function calcSemesterSummary(semesterId: number): Promise<void> {
+  if (!semesterId && semesterId !== 0) {
+    throw new Error('semesterId is required');
+  }
+
+  const response = await apiClient<ApiResponse<null>>(
+    `/academic-results/calc-summary`,
+    {
+      method: 'POST',
+      params: { semesterId },
+    }
+  );
+
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Calculate semester summary failed');
+  }
+}

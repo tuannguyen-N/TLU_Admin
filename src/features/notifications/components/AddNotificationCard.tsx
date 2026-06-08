@@ -197,11 +197,11 @@ export function AddNotificationCard({ onCancel, onSave }: Props) {
         content: form.content.trim(),
         targetType: form.targetType,
         targetIds: isGlobal ? [] : form.targetIds,
-  createdBy: (form.source ? form.source : 'SYSTEM'),
-        deadLine: form.deadLine || null,
-        isImportant: form.isImportant,
-  referenceType: form.referenceType.trim() || null,
-  ...(form.source ? { source: form.source as 'FACULTY' | 'SYSTEM' | 'LECTURER' } : {}),
+        createdBy: (form.source ? form.source : 'SYSTEM'),
+              deadLine: form.deadLine || null,
+              isImportant: form.isImportant,
+        referenceType: form.referenceType.trim() || null,
+        ...(form.source ? { source: form.source as 'FACULTY' | 'SYSTEM' | 'LECTURER' } : {}),
       };
       await createNotification(payload);
       mantineNotifications.show({ title: 'Thành công', message: 'Tạo thông báo thành công', color: 'green' });

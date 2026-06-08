@@ -45,23 +45,19 @@ const examFormatData = [
 ];
 
 const examTypeData = [
-    { value: 'Final', label: 'Final' },
-    { value: 'Midterm', label: 'Midterm' },
-    { value: 'Quiz', label: 'Quiz' },
-    { value: 'Practical', label: 'Practical' },
+    { value: 'FINAL', label: 'Final' },
+    { value: 'MIDTERM', label: 'Midterm' },
 ];
 
 const normalizeExamType = (value: string | null | undefined): string => {
-    if (!value) return 'Final';
+    if (!value) return 'FINAL';
     const normalized = value.trim().toUpperCase().replace(/[-\s]/g, '_');
 
-    if (normalized === 'FINAL' || normalized === 'FINAL_EXAM') return 'Final';
-    if (normalized === 'MIDTERM' || normalized === 'MIDTERM_EXAM') return 'Midterm';
-    if (normalized === 'QUIZ') return 'Quiz';
-    if (normalized === 'PRACTICAL') return 'Practical';
+    if (normalized === 'FINAL' || normalized === 'FINAL_EXAM' || normalized === 'FINAL-EXAM') return 'FINAL';
+    if (normalized === 'MIDTERM' || normalized === 'MIDTERM_EXAM' || normalized === 'MIDTERM-EXAM') return 'MIDTERM';
 
     const existing = examTypeData.find((item) => item.value.toUpperCase() === normalized);
-    return existing?.value ?? 'Final';
+    return existing?.value ?? 'FINAL';
 };
 
 const formatDateToApi = (date: Date | null): string => {
@@ -314,7 +310,7 @@ export function EditExamCard({ exam, currentSemesterId, onCancel, onSave, semest
                                 label="LOẠI THI"
                                 data={examTypeData}
                                 value={form.examType}
-                                onChange={val => set('examType')(val || 'Final')}
+                                onChange={val => set('examType')(val || 'FINAL')}
                                 classNames={{ label: classes.fieldLabel, input: classes.input }}
                             />
                         </Grid.Col>

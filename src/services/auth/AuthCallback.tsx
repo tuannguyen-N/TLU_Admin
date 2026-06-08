@@ -13,6 +13,8 @@ interface LoginResponse {
     name: string;
     avatar: string;
     token: string;
+    role?: string;
+    roles?: string[];
   } | null;
   message: string;
 }
@@ -67,7 +69,53 @@ export function AuthCallback() {
           return;
         }
 
-        localStorage.setItem("authToken", resData.data.token);
+        // store auth token (prefer accessToken if provided)
+        const authTok = (resData.data as any).accessToken || resData.data.token || tokenResult.accessToken;
+        if (authTok) localStorage.setItem("authToken", authTok);
+
+        // helper to parse JWT payload
+        const parseJwt = (t?: string | null) => {
+          if (!t) return null;
+          try {
+            const b = t.split('.')[1];
+            const json = decodeURIComponent(
+              atob(b.replace(/-/g, '+').replace(/_/g, '/'))
+                .split("")
+                .map((c) => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
+                .join('')
+            );
+            return JSON.parse(json);
+          } catch (e) {
+            return null;
+          }
+        };
+
+        // determine roles from response body or JWT
+        let chosenRole: string | undefined;
+        if (resData.data.roles && resData.data.roles.length) {
+          const upper = resData.data.roles.map((r) => String(r).toUpperCase());
+          chosenRole = upper.includes('ADMIN') ? 'ADMIN' : (upper.includes('LECTURER') ? 'LECTURER' : (upper.includes('STAFF') ? 'STAFF' : upper[0]));
+        }
+
+        if (!chosenRole) {
+          const jwtPayload = parseJwt(authTok as string);
+          if (jwtPayload) {
+            const claimRoles = jwtPayload.roles || jwtPayload.role || jwtPayload.rolesList || jwtPayload.Roles;
+            if (Array.isArray(claimRoles) && claimRoles.length) {
+              const upper = claimRoles.map((r: any) => String(r).toUpperCase());
+              chosenRole = upper.includes('ADMIN') ? 'ADMIN' : (upper.includes('LECTURER') ? 'LECTURER' : (upper.includes('STAFF') ? 'STAFF' : upper[0]));
+            } else if (typeof claimRoles === 'string') {
+              chosenRole = String(claimRoles).toUpperCase();
+            }
+          }
+        }
+
+        if (chosenRole) {
+          resData.data.role = chosenRole;
+        } else if (resData.data.role) {
+          resData.data.role = String(resData.data.role).toUpperCase();
+        }
+
         localStorage.setItem("userInfo", JSON.stringify(resData.data));
         navigate("/dashboard", { replace: true });
       } catch (err) {

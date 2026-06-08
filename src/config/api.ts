@@ -1,4 +1,4 @@
-const domain = import.meta.env.VITE_API_DOMAIN || 'http://localhost:8080';
+const domain = import.meta.env.VITE_API_DOMAIN || 'https://tl-connect-app-latest.onrender.com';
 const chatbotDomain = import.meta.env.VITE_CHATBOT_API_DOMAIN || 'https://tl-chatbot.nhokthanh3211.workers.dev';
 
 export const API_BASE_URL = `${domain}/api/v1`;
