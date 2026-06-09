@@ -24,23 +24,6 @@ export function useAcademicAdvisors() {
     }
   }, []);
 
-  const deleteClass = useCallback(async (academicAdvisorId: number): Promise<boolean> => {
-    try {
-      await deleteAcademicAdvisorClassAPI(academicAdvisorId);
-      if (advisorDetail) {
-        setAdvisorDetail({
-          ...advisorDetail,
-          classInfo: advisorDetail.classInfo.filter(
-            c => c.academicAdvisorId !== academicAdvisorId
-          ),
-        });
-      }
-      return true;
-    } catch {
-      return false;
-    }
-  }, [advisorDetail]);
-
   const removeClassFromList = useCallback((academicAdvisorId: number) => {
     if (advisorDetail) {
       setAdvisorDetail({
@@ -51,6 +34,16 @@ export function useAcademicAdvisors() {
       });
     }
   }, [advisorDetail]);
+
+  const deleteClass = useCallback(async (academicAdvisorId: number): Promise<boolean> => {
+      try {
+        await deleteAcademicAdvisorClassAPI(academicAdvisorId);
+        removeClassFromList(academicAdvisorId);
+        return true;
+      } catch {
+        return false;
+      }
+  }, [advisorDetail, removeClassFromList]);
 
   const createAcademicAdvisor = useCallback(async (lecturerId: number, studentClassId: number): Promise<{ success: boolean; error?: string }> => {
     try {

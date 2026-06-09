@@ -55,7 +55,7 @@ export default function AppRoutes() {
       <Route path="/documents" element={<ProtectedRoute><DocumentsPage /></ProtectedRoute>} />
       <Route path="/enrollment-periods" element={<ProtectedRoute><EnrollmentPeriodsPage /></ProtectedRoute>} />
       <Route path="/academic-results" element={<ProtectedRoute><AcademicResultsPage /></ProtectedRoute>} />
-      <Route path="/academic-results/:facultyCode/:studentId" element={<AcademicResultDetailPage />} />
+      <Route path="/academic-results/:facultyCode/:studentId" element={<ProtectedRoute><AcademicResultDetailPage /></ProtectedRoute>} />
       <Route path="/exams" element={<ProtectedRoute><ExamsPage /></ProtectedRoute>} />
       <Route path="/feedback" element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />

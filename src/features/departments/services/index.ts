@@ -141,6 +141,9 @@ export async function createFaculty(payload: CreateFacultyPayload): Promise<Facu
       body: JSON.stringify(payload),
     }
   );
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Lỗi API khi tạo khoa/bộ môn');
+  }
   return mapApiToFaculty(response.data);
 }
 
@@ -152,6 +155,9 @@ export async function updateFaculty(facultyId: number, payload: UpdateFacultyPay
       body: JSON.stringify(payload),
     }
   );
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Lỗi API khi cập nhật khoa/bộ môn');
+  }
 }
 
 export async function deleteFaculty(facultyId: number): Promise<void> {
@@ -161,12 +167,13 @@ export async function deleteFaculty(facultyId: number): Promise<void> {
       method: 'POST',
     }
   );
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Lỗi API khi xóa khoa/bộ môn');
+  }
 }
 
 export async function getDepartmentsByFacultyCode(facultyCode: string): Promise<DepartmentApiItem[]> {
-  const response = await apiClient<DepartmentListResponse>('/department/all?size=100', {
-    method: 'GET',
-  });
+  const response = await apiClient<DepartmentListResponse>('/department/all', { method: 'GET', params: { size: 100 } })
   return response.data.content.filter((d) => d.facultyCode === facultyCode);
 }
 
@@ -182,23 +189,29 @@ interface UpdateDepartmentPayload {
 }
 
 export async function createDepartment(payload: CreateDepartmentPayload): Promise<void> {
-  await apiClient<UpdateResponse>('/department/create', {
+  const response = await apiClient<UpdateResponse>('/department/create', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Lỗi API khi tạo khoa/bộ môn');
+  }
 }
 
 export async function deleteDepartment(departmentId: number): Promise<void> {
-  await apiClient<UpdateResponse>(`/department/delete/${departmentId}`, {
+  const response = await apiClient<UpdateResponse>(`/department/delete/${departmentId}`, {
     method: 'POST',
   });
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Lỗi API khi xóa khoa/bộ môn');
+  }
 }
 
 export async function getFaculties(): Promise<FacultyApiResponse[]> {
-  const response = await apiClient<{ code: number; message: string; data: { content: FacultyApiResponse[] } }>(
-    '/faculty/all?size=100',
-    { method: 'GET' }
-  );
+  const response = await apiClient<{ code: number; message: string; data: { content: FacultyApiResponse[] } }>('/faculty/all', { method: 'GET', params: { size: 100 } })
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Lỗi API khi lấy danh sách khoa/bộ môn');
+  }
   return response.data.content;
 }
 
@@ -208,8 +221,12 @@ export async function updateDepartment(departmentId: number, payload: {
   departmentName?: string;
   facultyId?: number;
 }): Promise<void> {
-  await apiClient<UpdateResponse>(`/department/update/${departmentId}`, {
+  const response = await apiClient<UpdateResponse>(`/department/update/${departmentId}`, {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Lỗi API khi cập nhật khoa/bộ môn');
+  }
 }

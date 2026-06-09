@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { fetchFaculties } from '../../students/services';
 import type { Faculty } from '../../students/types';
 
@@ -7,40 +7,23 @@ export function useDepartments() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadFaculties = useCallback(async () => {
     setLoading(true);
-    fetchFaculties()
-      .then((data) => {
-        setFaculties(data);
-        setError(null);
-      })
-      .catch((err) => {
-        console.error('[useDepartments] fetch faculties error:', err);
-        setError('Không thể tải danh sách khoa/bộ môn');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const data = await fetchFaculties();
+      setFaculties(data);
+      setError(null);
+    } catch (err) {
+      console.error('[useDepartments] fetch faculties error:', err);
+      setError('Không thể tải danh sách khoa/bộ môn');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  return {
-    faculties,
-    loading,
-    error,
-    reload: () => {
-      setLoading(true);
-      fetchFaculties()
-        .then((data) => {
-          setFaculties(data);
-          setError(null);
-        })
-        .catch((err) => {
-          console.error('[useDepartments] fetch faculties error:', err);
-          setError('Không thể tải danh sách khoa/bộ môn');
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    },
-  };
+  useEffect(() => {
+    loadFaculties();
+  }, [loadFaculties]);
+
+  return { faculties, loading, error, reload: loadFaculties };
 }

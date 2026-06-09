@@ -12,9 +12,8 @@ interface LoginResponse {
     email: string;
     name: string;
     avatar: string;
-    token: string;
-    role?: string;
-    roles?: string[];
+    accessToken: string;
+    refreshToken: string;
   } | null;
   message: string;
 }
@@ -32,6 +31,7 @@ export function AuthCallback() {
 
     const processCallback = async () => {
       try {
+        await instance.handleRedirectPromise();
         const account = instance.getActiveAccount() ?? instance.getAllAccounts()[0] ?? null;
 
         if (!account) {
@@ -70,8 +70,11 @@ export function AuthCallback() {
         }
 
         // store auth token (prefer accessToken if provided)
-        const authTok = (resData.data as any).accessToken || resData.data.token || tokenResult.accessToken;
+        const authTok = resData.data.accessToken || tokenResult.accessToken;
         if (authTok) localStorage.setItem("authToken", authTok);
+
+        const refreshTok = resData.data.refreshToken;
+        if (refreshTok) localStorage.setItem("refreshToken", refreshTok);
 
         // helper to parse JWT payload
         const parseJwt = (t?: string | null) => {
@@ -85,38 +88,27 @@ export function AuthCallback() {
                 .join('')
             );
             return JSON.parse(json);
-          } catch (e) {
+          } catch {
             return null;
           }
         };
 
-        // determine roles from response body or JWT
-        let chosenRole: string | undefined;
-        if (resData.data.roles && resData.data.roles.length) {
-          const upper = resData.data.roles.map((r) => String(r).toUpperCase());
-          chosenRole = upper.includes('ADMIN') ? 'ADMIN' : (upper.includes('LECTURER') ? 'LECTURER' : (upper.includes('STAFF') ? 'STAFF' : upper[0]));
-        }
+        const jwtPayload = parseJwt(resData.data.accessToken);
+        const claimRoles: string[] = jwtPayload?.roles ?? [];
 
-        if (!chosenRole) {
-          const jwtPayload = parseJwt(authTok as string);
-          if (jwtPayload) {
-            const claimRoles = jwtPayload.roles || jwtPayload.role || jwtPayload.rolesList || jwtPayload.Roles;
-            if (Array.isArray(claimRoles) && claimRoles.length) {
-              const upper = claimRoles.map((r: any) => String(r).toUpperCase());
-              chosenRole = upper.includes('ADMIN') ? 'ADMIN' : (upper.includes('LECTURER') ? 'LECTURER' : (upper.includes('STAFF') ? 'STAFF' : upper[0]));
-            } else if (typeof claimRoles === 'string') {
-              chosenRole = String(claimRoles).toUpperCase();
-            }
-          }
-        }
+        const priority = ['ADMIN', 'LECTURER', 'STAFF'];
+        const upper = claimRoles.map((r) => String(r).toUpperCase());
+        const chosenRole = priority.find((r) => upper.includes(r)) ?? upper[0] ?? 'UNKNOWN';
 
-        if (chosenRole) {
-          resData.data.role = chosenRole;
-        } else if (resData.data.role) {
-          resData.data.role = String(resData.data.role).toUpperCase();
-        }
 
-        localStorage.setItem("userInfo", JSON.stringify(resData.data));
+        const { accessToken, refreshToken, ...userProfile } = resData.data;
+
+        localStorage.setItem("authToken", accessToken || tokenResult.accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("userInfo", JSON.stringify({
+          ...userProfile,
+          role: chosenRole ?? 'UNKNOWN',
+        }));
         navigate("/dashboard", { replace: true });
       } catch (err) {
         console.error("Auth error:", err);

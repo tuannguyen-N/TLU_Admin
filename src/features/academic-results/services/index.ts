@@ -147,22 +147,20 @@ export async function importAcademicResultsFromExcel(file: File): Promise<Import
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || ''}/api/v1/admin/academic-results/import`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInJvbGVzIjpudWxsLCJzaWduIjpudWxsLCJpYXQiOjE3NzU3OTMxNTc1NzksImV4cCI6MTc3NTc5Njc1NzU3OX0.OcuqDvFuHymaB9AB9bHgaAGY04DlYL6pUjKqJWMb328`,
-    },
-    body: formData,
-  });
+  // Dùng apiClient như các hàm khác, nó tự gắn token
+  const response = await apiClient<{ code: number; message: string; data: ImportAcademicResultSummary }>(
+    '/academic-results/import',
+    {
+      method: 'POST',
+      body: formData,
+    }
+  );
 
-  if (!response.ok) {
-    const text = await response.text();
-    console.error('[API] import academic results error:', text);
-    throw new Error(`Import failed: ${response.status}`);
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Import thất bại');
   }
 
-  const json = await response.json();
-  return json.data;
+  return response.data;
 }
 
 export interface AddAcademicResultPayload {
@@ -297,10 +295,7 @@ interface StudentApiFindResponse {
 
 export async function fetchStudentByCode(studentCode: string): Promise<{ id: number; studentCode: string; fullName: string } | null> {
   try {
-    const response = await apiClient<StudentApiFindResponse>(
-      `/students/find?studentCode=${encodeURIComponent(studentCode)}`,
-      { method: 'GET' }
-    );
+    const response = await apiClient<StudentApiFindResponse>('/students/find', { method: 'GET', params: { studentCode } });
     return response.data;
   } catch {
     return null;

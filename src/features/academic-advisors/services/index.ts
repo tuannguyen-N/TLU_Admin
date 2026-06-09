@@ -12,6 +12,10 @@ export const fetchAcademicAdvisorDetailAPI = async (id: number): Promise<Academi
     `/academic-advisors/${id}`,
     { method: 'GET' }
   );
+
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Failed to fetch academic advisor detail');
+  }
   return response.data;
 };
 

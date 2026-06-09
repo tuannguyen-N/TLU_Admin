@@ -36,39 +36,33 @@ export function ExamsPage() {
     });
 
     useEffect(() => {
-        const loadSemesters = async () => {
+        const loadOptions = async () => {
             setLoadingOptions(true);
             try {
-                const result = await fetchSemesters({ page: 0, size: 100 });
-                const activeSemesters = result.semesters.filter(s => s.isActive);
+                const [semesterResult, subjectResult] = await Promise.all([
+                    fetchSemesters({ page: 0, size: 100 }),
+                    fetchSubjectsAPI({ page: 0, size: 500 }), // giảm từ 1000
+                ]);
+                
+                const activeSemesters = semesterResult.semesters.filter(s => s.isActive);
                 setSemesters(activeSemesters.map(s => ({
                     value: s.id.toString(),
                     label: `${s.semesterName} (${s.academicYears})`,
                     id: s.id,
                 })));
-            } catch (err) {
-                console.error('Error loading semesters:', err);
-            } finally {
-                setLoadingOptions(false);
-            }
-        };
-        loadSemesters();
-    }, []);
-
-    useEffect(() => {
-        const loadSubjects = async () => {
-            try {
-                const result = await fetchSubjectsAPI({ page: 0, size: 1000 });
-                setSubjects(result.subjects.map(s => ({
+                
+                setSubjects(subjectResult.subjects.map(s => ({
                     value: s.subjectCode,
                     label: s.subjectName,
                     id: s.id,
                 })));
             } catch (err) {
-                console.error('Error loading subjects:', err);
+                console.error('Error loading options:', err);
+            } finally {
+                setLoadingOptions(false);
             }
         };
-        loadSubjects();
+        loadOptions();
     }, []);
 
     useEffect(() => {

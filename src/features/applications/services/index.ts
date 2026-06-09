@@ -13,6 +13,7 @@ interface ApplicationApiResponse {
     fileKey: string;
     originalFilename: string;
     fileSize: number;
+    resourceType: string;
   }[];
 }
 
@@ -76,7 +77,9 @@ export async function fetchApplications(page: number = 0, size: number = 10): Pr
       params: { page, size },
     }
   );
-
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Đã xảy ra lỗi khi lấy danh sách đơn');
+  }
   return {
     applications: response.data.content.map(mapApiToApplication),
     totalElements: response.data.totalElements,
@@ -93,6 +96,11 @@ export async function fetchApplicationDetail(applicationId: number): Promise<App
       method: 'GET',
     }
   );
+
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Đã xảy ra lỗi khi lấy chi tiết đơn');
+  }
+
   return mapApiToDetail(response.data);
 }
 
@@ -110,6 +118,11 @@ export async function fetchApplicationTypes(): Promise<ApplicationType[]> {
       method: 'GET',
     }
   );
+
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Đã xảy ra lỗi khi lấy danh sách loại đơn');
+  }
+
   return response.data;
 }
 
@@ -132,6 +145,11 @@ export async function createApplicationType(payload: CreateApplicationTypePayloa
       body: JSON.stringify(payload),
     }
   );
+
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Đã xảy ra lỗi khi tạo loại đơn');
+  }
+
   return response.data;
 }
 
@@ -154,6 +172,11 @@ export async function updateApplicationType(typeId: number, payload: UpdateAppli
       body: JSON.stringify(payload),
     }
   );
+
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Đã xảy ra lỗi khi cập nhật loại đơn');
+  }
+
   return response.data;
 }
 
@@ -164,12 +187,16 @@ interface DeleteApplicationTypeResponse {
 }
 
 export async function deleteApplicationType(typeId: number): Promise<void> {
-  await apiClient<DeleteApplicationTypeResponse>(
+  const response = await apiClient<DeleteApplicationTypeResponse>(
     `/application-types/delete/${typeId}`,
     {
       method: 'POST',
     }
   );
+
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Đã xảy ra lỗi khi xóa loại đơn');
+  }
 }
 
 // Update status only
@@ -180,39 +207,20 @@ interface UpdateStatusResponse {
 }
 
 export async function updateApplicationStatus(applicationId: number, status: ApplicationStatus): Promise<void> {
-  await apiClient<UpdateStatusResponse>(
+  const response = await apiClient<UpdateStatusResponse>(
     `/application/update-status/${applicationId}`,
     {
       method: 'POST',
       body: JSON.stringify({ status }),
     }
   );
+
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Đã xảy ra lỗi khi cập nhật trạng thái đơn');
+  }
 }
 
-// Create application
-export interface CreateApplicationPayload {
-  studentCode: string;
-  applicationTypeName: string;
-  content: string;
-  file?: File | null;
-}
 
-interface CreateApplicationResponse {
-  code: number;
-  message: string;
-  data: ApplicationApiResponse;
-}
-
-export async function createApplication(payload: CreateApplicationPayload): Promise<Application> {
-  const response = await apiClient<CreateApplicationResponse>(
-    '/application/create',
-    {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }
-  );
-  return mapApiToApplication(response.data);
-}
 
 // Update application (full update)
 export interface UpdateApplicationPayload {
@@ -236,6 +244,11 @@ export async function updateApplication(applicationId: number, payload: UpdateAp
       body: JSON.stringify(payload),
     }
   );
+
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Đã xảy ra lỗi khi cập nhật đơn');
+  }
+
   return mapApiToApplication(response.data);
 }
 
@@ -247,10 +260,14 @@ interface DeleteApplicationResponse {
 }
 
 export async function deleteApplication(applicationId: number): Promise<void> {
-  await apiClient<DeleteApplicationResponse>(
+  const response = await apiClient<DeleteApplicationResponse>(
     `/application/delete/${applicationId}`,
     {
       method: 'POST',
     }
   );
+
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Đã xảy ra lỗi khi xóa đơn');
+  }
 }

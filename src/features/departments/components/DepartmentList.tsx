@@ -1,13 +1,13 @@
 import { Group, Text, Button, Loader, Center, Modal, ActionIcon, Tooltip, Table } from '@mantine/core';
 import { IconArrowLeft, IconPencil, IconTrash, IconUsers, IconPlus } from '@tabler/icons-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { notifications } from '@mantine/notifications';
 import type { Faculty } from '../../students/types';
 import { deleteFaculty, getDepartmentsByFacultyCode, createDepartment, updateDepartment, deleteDepartment } from '../services';
-import { EditDepartmentCard } from './EditDepartmentCard';
+import { EditFacultyCard } from './EditFacultyCard';
 import classes from './DepartmentList.module.css';
 import { AddSubDepartmentCard } from './AddSubDepartmentCard';
-import { EditSubDepartmentCard } from './EditSubDepartmentCard';
+import { EditSubDepartmentCard, type FacultyOption } from './EditSubDepartmentCard';
 
 interface DepartmentItem {
     id: number;
@@ -19,6 +19,7 @@ interface DepartmentItem {
 
 interface Props {
     faculty: Faculty;
+    faculties: FacultyOption[];
     loading?: boolean;
     error?: string | null;
     onReload?: () => void;
@@ -26,7 +27,7 @@ interface Props {
     onDepartmentUpdated: () => void;
 }
 
-export function DepartmentList({ faculty, loading, error, onBack, onDepartmentUpdated }: Props) {
+export function DepartmentList({ faculty, faculties, loading, error, onBack, onDepartmentUpdated }: Props) {
     const [editingFaculty, setEditingFaculty] = useState<Faculty | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deletingFaculty, setDeletingFaculty] = useState<Faculty | null>(null);
@@ -42,16 +43,12 @@ export function DepartmentList({ faculty, loading, error, onBack, onDepartmentUp
     const [deleteDeptModalOpen, setDeleteDeptModalOpen] = useState(false);
     const [deletingDeptLoading, setDeletingDeptLoading] = useState(false);
 
-    // Form states
-    const [deptForm, setDeptForm] = useState({ departmentCode: '', departmentName: '' });
-    const [deptFormLoading, setDeptFormLoading] = useState(false);
-
     const [editingDept, setEditingDept] = useState<DepartmentItem | null>(null);
 
     const openEditDept = (dept: DepartmentItem) => setEditingDept(dept);
 
 
-    const fetchDepartments = async () => {
+    const fetchDepartments = useCallback(async () => {
         setDeptLoading(true);
         setDeptError(null);
         try {
@@ -62,11 +59,11 @@ export function DepartmentList({ faculty, loading, error, onBack, onDepartmentUp
         } finally {
             setDeptLoading(false);
         }
-    };
+    }, [faculty.facultyCode]);
 
     useEffect(() => {
         fetchDepartments();
-    }, [faculty.facultyCode]);
+    }, [fetchDepartments]);
 
     // Faculty handlers
     const handleEdit = (f: Faculty) => setEditingFaculty(f);
@@ -91,58 +88,12 @@ export function DepartmentList({ faculty, loading, error, onBack, onDepartmentUp
 
     // Department handlers
     const openAddDept = () => {
-        setDeptForm({ departmentCode: '', departmentName: '' });
         setAddDeptModalOpen(true);
     };
 
     const openDeleteDept = (dept: DepartmentItem) => {
         setDeletingDept(dept);
         setDeleteDeptModalOpen(true);
-    };
-
-    // Sửa handler
-    const handleAddDeptSave = async () => {
-        if (!deptForm.departmentCode.trim() || !deptForm.departmentName.trim()) {
-            notifications.show({ title: 'Lỗi', message: 'Vui lòng nhập đầy đủ thông tin', color: 'red' });
-            return;
-        }
-        setDeptFormLoading(true);
-        try {
-            await createDepartment({
-                departmentCode: deptForm.departmentCode.trim(),
-                departmentName: deptForm.departmentName.trim(),
-                facultyId: faculty.id,  // tự truyền từ prop faculty
-            });
-            notifications.show({ title: 'Thành công', message: 'Thêm bộ môn thành công', color: 'green' });
-            setAddDeptModalOpen(false);
-            fetchDepartments();
-        } catch {
-            notifications.show({ title: 'Lỗi', message: 'Thêm bộ môn thất bại', color: 'red' });
-        } finally {
-            setDeptFormLoading(false);
-        }
-    };
-
-    const handleEditDeptSave = async () => {
-        if (!editingDept) return;
-        if (!deptForm.departmentCode.trim() || !deptForm.departmentName.trim()) {
-            notifications.show({ title: 'Lỗi', message: 'Vui lòng nhập đầy đủ thông tin', color: 'red' });
-            return;
-        }
-        setDeptFormLoading(true);
-        try {
-            await updateDepartment(editingDept.id, {
-                departmentCode: deptForm.departmentCode.trim(),
-                departmentName: deptForm.departmentName.trim(),
-            });
-            notifications.show({ title: 'Thành công', message: 'Cập nhật bộ môn thành công', color: 'green' });
-            setEditingDept(null);
-            fetchDepartments();
-        } catch {
-            notifications.show({ title: 'Lỗi', message: 'Cập nhật bộ môn thất bại', color: 'red' });
-        } finally {
-            setDeptFormLoading(false);
-        }
     };
 
     const handleDeleteDeptConfirm = async () => {
@@ -263,7 +214,7 @@ export function DepartmentList({ faculty, loading, error, onBack, onDepartmentUp
 
             <Modal opened={editingFaculty !== null} onClose={() => setEditingFaculty(null)} size="60%" withCloseButton={false}>
                 {editingFaculty && (
-                    <EditDepartmentCard
+                    <EditFacultyCard
                         faculty={editingFaculty}
                         onCancel={() => setEditingFaculty(null)}
                         onSave={() => { setEditingFaculty(null); onDepartmentUpdated(); }}
@@ -307,6 +258,7 @@ export function DepartmentList({ faculty, loading, error, onBack, onDepartmentUp
                     <EditSubDepartmentCard
                         department={editingDept}
                         currentFacultyId={faculty.id}
+                        faculties={faculties}
                         onCancel={() => setEditingDept(null)}
                         onSave={() => {
                             setEditingDept(null);

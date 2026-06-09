@@ -25,13 +25,13 @@ export function useCourseClasses(khoa: string = '') {
     fetchDepartments()
       .then((data) => setDepartments(data))
       .catch((err) => console.error('[useCourseClasses] fetch departments error:', err));
-    fetchLecturersAPI({ page: 0, size: 100 })
+    fetchLecturersAPI({ page: 0, size: 200 })
       .then((data) => {
         const activeLecturers = (data.content || []).filter((l: Lecturer) => l.status !== 'INACTIVE');
         setLecturers(activeLecturers);
       })
       .catch((err) => console.error('[useCourseClasses] fetch lecturers error:', err));
-    fetchSubjectsAPI({ page: 0, size: 100 })
+    fetchSubjectsAPI({ page: 0, size: 200 })
       .then((data) => {
         setSubjects(data.subjects);
       })

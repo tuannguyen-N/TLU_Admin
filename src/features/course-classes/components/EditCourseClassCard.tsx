@@ -9,6 +9,7 @@ import type { Lecturer } from '../../lecturers/types';
 import classes from './AddCourseClassCard.module.css';
 import type { CourseClassDetail } from '../types';
 import type { DepartmentOption, FacultyOption, Subject } from '../../subjects/types';
+import { fetchSemesters } from '../../semesters/services';
 
 interface ValidationErrors {
     classCode?: string;
@@ -67,6 +68,10 @@ export function EditCourseClassCard({
         subjectId: '',
         semesterId: String(courseClass.semester?.id ?? ''),
     });
+    const [errors, setErrors] = useState<ValidationErrors>({});
+    const [loading, setLoading] = useState(false);
+    const [apiError, setApiError] = useState<string | null>(null);
+    const [semesters, setSemesters] = useState<{ id: number; semesterName: string; semesterCode: string }[]>([]);
 
     useEffect(() => {
         const matchedLecturer = lecturers.find(l => l.lecturerCode === courseClass.lecturerCode);
@@ -77,9 +82,12 @@ export function EditCourseClassCard({
             subjectId: matchedSubject ? String(matchedSubject.id) : '',
         }));
     }, [lecturers, subjects, courseClass.lecturerCode, courseClass.subjectCode]);
-    const [errors, setErrors] = useState<ValidationErrors>({});
-    const [loading, setLoading] = useState(false);
-    const [apiError, setApiError] = useState<string | null>(null);
+
+
+    useEffect(() => {
+        fetchSemesters({ page: 0, size: 100 })
+            .then(res => setSemesters(res.semesters || []));
+    }, []);
 
     const set = (key: keyof typeof form) => (val: any) => {
         setForm(prev => ({ ...prev, [key]: val }));
@@ -123,7 +131,7 @@ export function EditCourseClassCard({
         if (form.semesterId) payload.semesterId = parseInt(form.semesterId) || undefined;
 
         try {
-            onSave(payload);
+            await onSave(payload);
         } catch (err) {
             setApiError(err instanceof Error ? err.message : 'Đã xảy ra lỗi khi cập nhật lớp học phần');
         } finally {
@@ -201,6 +209,18 @@ export function EditCourseClassCard({
                                 value={form.lecturerId}
                                 onChange={val => set('lecturerId')(val ?? '')}
                                 error={errors.lecturerId}
+                                classNames={{ label: classes.fieldLabel, input: classes.input }}
+                                searchable
+                                clearable
+                            />
+                        </Grid.Col>
+                        <Grid.Col span={4}>
+                            <Select
+                                label="HỌC KỲ"
+                                placeholder="Chọn học kỳ"
+                                data={semesters.map(s => ({ value: String(s.id), label: `${s.semesterCode} - ${s.semesterName}` }))}
+                                value={form.semesterId}
+                                onChange={val => set('semesterId')(val ?? '')}
                                 classNames={{ label: classes.fieldLabel, input: classes.input }}
                                 searchable
                                 clearable

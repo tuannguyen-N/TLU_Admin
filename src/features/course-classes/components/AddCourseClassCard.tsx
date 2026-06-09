@@ -10,6 +10,7 @@ import type { CourseClassFormData } from '../types';
 import type { DepartmentOption } from '../../subjects/types';
 import type { FacultyOption, Subject } from '../../subjects/types';
 import type { Lecturer } from '../../lecturers/types';
+import { fetchSemesters } from '../../semesters/services';
 
 interface ValidationErrors {
     classCode?: string;
@@ -22,7 +23,7 @@ interface ValidationErrors {
 
 interface Props {
     onCancel: () => void;
-    onSave: (data: CourseClassFormData) => void;
+    onSave: (data: CourseClassFormData) => Promise<void>;
     lecturers: Lecturer[];
     departments: DepartmentOption[];
     faculties: FacultyOption[];
@@ -147,8 +148,7 @@ export function AddCourseClassCard({ onCancel, onSave, lecturers, departments, f
         // load semesters for selection
         const load = async () => {
             try {
-                const mod = await import('../../semesters/services');
-                const res = await mod.fetchSemesters({ page: 0, size: 100 });
+                const res = await fetchSemesters({ page: 0, size: 100 });
                 setSemesters(res.semesters || []);
             } catch (e) {
                 // ignore

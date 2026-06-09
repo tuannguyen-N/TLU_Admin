@@ -16,9 +16,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const roleCtx = useRole();
 
   useEffect(() => {
-    instance.initialize().then(() => {
-      setIsReady(true);
-    });
+    instance.handleRedirectPromise()
+        .then(() => setIsReady(true))
+        .catch(() => setIsReady(true));
   }, [instance]);
 
   if (!isReady) {

@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'https://tl-connect-app-latest.onrender.com',
         changeOrigin: true,
       }
     }

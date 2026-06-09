@@ -15,6 +15,7 @@ export interface ApplicationAttachment {
   fileKey: string;
   originalFilename: string;
   fileSize: number;
+  resourceType: string;
 }
 
 export interface ApplicationDetail extends Application {

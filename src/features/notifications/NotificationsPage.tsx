@@ -50,35 +50,30 @@ export function NotificationsPage() {
       />
 
       <Modal
-        opened={addModalOpened || editingNotification !== null}
-        onClose={() => {
-          setAddModalOpened(false);
-          setEditingNotification(null);
-        }}
-        centered
-        size="80%"
-        withCloseButton={false}
-        scrollAreaComponent={ScrollArea.Autosize}
+          opened={addModalOpened}
+          onClose={() => setAddModalOpened(false)}
+          centered size="80%" withCloseButton={false}
+          scrollAreaComponent={ScrollArea.Autosize}
       >
-        {addModalOpened && (
           <AddNotificationCard
-            onCancel={() => setAddModalOpened(false)}
-            onSave={() => {
-              setAddModalOpened(false);
-              reload();
-            }}
+              onCancel={() => setAddModalOpened(false)}
+              onSave={() => { setAddModalOpened(false); reload(); }}
           />
-        )}
-        {editingNotification && (
-          <EditNotificationCard
-            notification={editingNotification}
-            onCancel={() => setEditingNotification(null)}
-            onSave={() => {
-              setEditingNotification(null);
-              reload();
-            }}
-          />
-        )}
+      </Modal>
+
+      <Modal
+          opened={editingNotification !== null}
+          onClose={() => setEditingNotification(null)}
+          centered size="80%" withCloseButton={false}
+          scrollAreaComponent={ScrollArea.Autosize}
+      >
+          {editingNotification && (
+              <EditNotificationCard
+                  notification={editingNotification}
+                  onCancel={() => setEditingNotification(null)}
+                  onSave={() => { setEditingNotification(null); reload(); }}
+              />
+          )}
       </Modal>
     </div>
   );

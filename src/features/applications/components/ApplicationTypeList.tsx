@@ -5,9 +5,8 @@ import { useApplicationTypes } from '../hooks/useApplicationTypes';
 import { deleteApplicationType } from '../services';
 import { notifications } from '@mantine/notifications';
 import type { ApplicationType } from '../types';
-import { AddApplicationTypeCard } from './AddApplicationTypeCard';
-import { EditApplicationTypeCard } from './EditApplicationTypeCard';
 import classes from './ApplicationTypeList.module.css';
+import { ApplicationTypeForm } from './ApplicationTypeForm';
 
 export function ApplicationTypeList() {
   const { applicationTypes, loading, error, reload } = useApplicationTypes();
@@ -119,7 +118,7 @@ export function ApplicationTypeList() {
         size="70%"
         withCloseButton={false}
       >
-        <AddApplicationTypeCard
+        <ApplicationTypeForm
           onCancel={() => setAddModalOpen(false)}
           onSave={handleAddSuccess}
         />
@@ -133,7 +132,7 @@ export function ApplicationTypeList() {
         withCloseButton={false}
       >
         {editingType && (
-          <EditApplicationTypeCard
+          <ApplicationTypeForm
             applicationType={editingType}
             onCancel={() => setEditingType(null)}
             onSave={handleEditSuccess}

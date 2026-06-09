@@ -7,7 +7,8 @@ import {
 import { useState } from 'react';
 import { notifications } from '@mantine/notifications';
 import classes from './AddApplicationTypeCard.module.css';
-import { createApplicationType } from '../services';
+import { createApplicationType, updateApplicationType } from '../services';
+import type { ApplicationType } from '../types';
 
 interface ValidationErrors {
   code?: string;
@@ -15,14 +16,16 @@ interface ValidationErrors {
 }
 
 interface Props {
+  applicationType?: ApplicationType;
   onCancel: () => void;
   onSave: () => void;
 }
 
-export function AddApplicationTypeCard({ onCancel, onSave }: Props) {
+export function ApplicationTypeForm({ applicationType, onCancel, onSave }: Props) {
+  const isEdit = !!applicationType;
   const [form, setForm] = useState({
-    code: '',
-    name: '',
+    code: applicationType?.code || '',
+    name: applicationType?.name || '',
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [loading, setLoading] = useState(false);
@@ -55,22 +58,28 @@ export function AddApplicationTypeCard({ onCancel, onSave }: Props) {
     setLoading(true);
     setApiError(null);
 
+    const payload = {
+      code: form.code.trim(),
+      name: form.name.trim(),
+    };
+
     try {
-      await createApplicationType({
-        code: form.code.trim(),
-        name: form.name.trim(),
-      });
+      if (isEdit) {
+        await updateApplicationType(applicationType.id, payload);
+      } else {
+        await createApplicationType(payload);
+      }
       notifications.show({
         title: 'Thành công',
-        message: 'Thêm loại đơn từ thành công',
+        message: isEdit ? 'Cập nhật loại đơn từ thành công' : 'Thêm mới loại đơn từ thành công',
         color: 'green',
       });
       onSave();
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : 'Đã xảy ra lỗi khi thêm loại đơn từ');
+      setApiError(err instanceof Error ? err.message : 'Đã xảy ra lỗi khi cập nhật loại đơn từ');
       notifications.show({
         title: 'Lỗi',
-        message: 'Thêm loại đơn từ thất bại',
+        message: isEdit ? 'Cập nhật loại đơn từ thất bại' : 'Thêm mới loại đơn từ thất bại',
         color: 'red',
       });
     } finally {
@@ -82,8 +91,8 @@ export function AddApplicationTypeCard({ onCancel, onSave }: Props) {
     <div className={classes.page} style={{ position: 'relative' }}>
       <LoadingOverlay visible={loading} />
       <div className={classes.pageHeader}>
-        <h1 className={classes.pageTitle}>Thêm Loại Đơn Từ Mới</h1>
-        <p className={classes.pageSubtitle}>Nhập thông tin chi tiết để tạo loại đơn từ mới trong hệ thống.</p>
+        <h1 className={classes.pageTitle}>Chỉnh Sửa Loại Đơn Từ</h1>
+        <p className={classes.pageSubtitle}>Cập nhật thông tin loại đơn từ trong hệ thống.</p>
       </div>
 
       <Stack gap={16}>
@@ -139,7 +148,7 @@ export function AddApplicationTypeCard({ onCancel, onSave }: Props) {
           className={classes.saveBtn}
           loading={loading}
         >
-          Thêm loại đơn từ
+          Lưu thay đổi
         </Button>
       </div>
 

@@ -31,28 +31,25 @@ import { useFacultiesSelect } from './hooks/useFacultySelect';
 import { useStudentsSelect } from './hooks/useStudentsSelect';
 import type { EnrollmentPeriod, EnrollmentPeriodFormData, StudentEnrollmentFilter } from './types';
 import classes from './EnrollmentPeriodsPage.module.css';
+import { DateTimePicker } from '@mantine/dates';
 
 interface FormState {
   semesterId: string;
-  startTime: string;
-  endTime: string;
+  startTime: Date | null;
+  endTime: Date | null;
   maxCredits: number | '';
 }
 
 const initialForm: FormState = {
   semesterId: '',
-  startTime: '',
-  endTime: '',
+  startTime: null,
+  endTime: null,
   maxCredits: '',
 };
 
-function normalizeDateTime(value: string): string {
-  if (!value) return '';
-  return value.length === 16 ? `${value}:00` : value;
-}
-
-function toDateTimeInputValue(value: string): string {
-  return value ? value.slice(0, 16) : '';
+function fromDateValue(date: Date | null): string {
+  if (!date) return '';
+  return date.toISOString().slice(0, 19); // "2024-01-01T08:00:00"
 }
 
 function formatDateTime(value: string): string {
@@ -76,8 +73,8 @@ function getEnrollmentStatus(status: string) {
 function toForm(period: EnrollmentPeriod): FormState {
   return {
     semesterId: String(period.semesterId),
-    startTime: toDateTimeInputValue(period.startTime),
-    endTime: toDateTimeInputValue(period.endTime),
+    startTime: period.startTime ? new Date(period.startTime) : null,
+    endTime: period.endTime ? new Date(period.endTime) : null,
     maxCredits: period.maxCredits,
   };
 }
@@ -85,8 +82,8 @@ function toForm(period: EnrollmentPeriod): FormState {
 function toPayload(form: FormState): EnrollmentPeriodFormData {
   return {
     semesterId: Number(form.semesterId),
-    startTime: normalizeDateTime(form.startTime),
-    endTime: normalizeDateTime(form.endTime),
+    startTime: fromDateValue(form.startTime),
+    endTime: fromDateValue(form.endTime),
     maxCredits: Number(form.maxCredits),
   };
 }
@@ -103,6 +100,10 @@ export function EnrollmentPeriodsPage() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [cancelingEnrollmentId, setCancelingEnrollmentId] = useState<number | null>(null);
+  const [canceling, setCanceling] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   const {
     semesters,
@@ -189,7 +190,7 @@ export function EnrollmentPeriodsPage() {
     if (!form.semesterId || !form.startTime || !form.endTime || form.maxCredits === '') {
       return 'Vui lòng nhập đầy đủ thông tin đợt đăng ký';
     }
-    if (new Date(form.startTime).getTime() >= new Date(form.endTime).getTime()) {
+    if (form.startTime.getTime() >= form.endTime.getTime()) {
       return 'Thời gian bắt đầu phải trước thời gian kết thúc';
     }
     if (Number(form.maxCredits) <= 0) {
@@ -255,50 +256,54 @@ export function EnrollmentPeriodsPage() {
     }
   };
 
-  const handleConfirmEnrollments = async () => {
+
+  const handleCancelClick = (id: number) => {
+    setCancelingEnrollmentId(id);
+  };
+
+  const handleCancelConfirm = async () => {
+    if (!cancelingEnrollmentId) return;
+    setCanceling(true);
+    try {
+      await cancelStudentEnrollment(cancelingEnrollmentId);
+      notifications.show({ title: 'Thành công', message: 'Đã hủy đăng ký học của sinh viên', color: 'green' });
+      setCancelingEnrollmentId(null);
+      reloadEnrollments();
+    } catch (err) {
+      notifications.show({ title: 'Lỗi', message: err instanceof Error ? err.message : 'Không thể hủy đăng ký học', color: 'red' });
+    } finally {
+      setCanceling(false);
+    }
+  };
+
+  const handleConfirmClick = () => {
     if (!enrollmentSemesterId) {
-      notifications.show({
-        title: 'Lỗi',
-        message: 'Vui lòng chọn học kỳ cần xác nhận',
-        color: 'red',
-      });
+      notifications.show({ title: 'Lỗi', message: 'Vui lòng chọn học kỳ cần xác nhận', color: 'red' });
       return;
     }
+    setConfirmModalOpen(true);
+  };
 
+  const handleConfirmEnrollments = async () => {
+    setConfirming(true);
     try {
       await confirmStudentEnrollments(Number(enrollmentSemesterId));
-      notifications.show({
-        title: 'Thành công',
-        message: 'Đã xác nhận toàn bộ đăng ký học của học kỳ',
-        color: 'green',
-      });
+      notifications.show({ title: 'Thành công', message: 'Đã xác nhận toàn bộ đăng ký học của học kỳ', color: 'green' });
+      setConfirmModalOpen(false);
       reloadEnrollments();
     } catch (err) {
-      notifications.show({
-        title: 'Lỗi',
-        message: err instanceof Error ? err.message : 'Không thể xác nhận đăng ký học',
-        color: 'red',
-      });
+      notifications.show({ title: 'Lỗi', message: err instanceof Error ? err.message : 'Không thể xác nhận đăng ký học', color: 'red' });
+    } finally {
+      setConfirming(false);
     }
   };
 
-  const handleCancelEnrollment = async (id: number) => {
-    try {
-      await cancelStudentEnrollment(id);
-      notifications.show({
-        title: 'Thành công',
-        message: 'Đã hủy đăng ký học của sinh viên',
-        color: 'green',
-      });
-      reloadEnrollments();
-    } catch (err) {
-      notifications.show({
-        title: 'Lỗi',
-        message: err instanceof Error ? err.message : 'Không thể hủy đăng ký học',
-        color: 'red',
-      });
-    }
+  const toDate = (val: unknown): Date | null => {
+    if (!val) return null;
+    if (val instanceof Date) return val;
+    return new Date(val as string);
   };
+
 
   return (
     <div className={classes.page}>
@@ -479,7 +484,7 @@ export function EnrollmentPeriodsPage() {
               </Button>
               <Button
                 color="green"
-                onClick={handleConfirmEnrollments}
+                onClick={handleConfirmClick}
                 disabled={!enrollmentSemesterId}
               >
                 Xác nhận học kỳ
@@ -545,7 +550,7 @@ export function EnrollmentPeriodsPage() {
                                 variant="subtle"
                                 color="red"
                                 size="sm"
-                                onClick={() => handleCancelEnrollment(enrollment.id)}
+                                onClick={() => handleCancelClick(enrollment.id)}
                                 disabled={enrollment.status === 'CANCELLED'}
                               >
                                 <IconTrash size={16} />
@@ -582,30 +587,21 @@ export function EnrollmentPeriodsPage() {
             disabled={semestersLoading}
             required
           />
-          <div>
-            <Text size="sm" fw={500} mb={6}>Thời gian bắt đầu</Text>
-            <input
-              type="datetime-local"
+          <DateTimePicker
+              label="Thời gian bắt đầu"
+              placeholder="Chọn thời gian bắt đầu"
               value={form.startTime}
-              onChange={(event) => {
-                const value = event.currentTarget.value;
-                setForm(prev => ({ ...prev, startTime: value }));
-              }}
-              style={{ width: '100%', height: 36, padding: '0 12px' }}
-            />
-          </div>
-          <div>
-            <Text size="sm" fw={500} mb={6}>Thời gian kết thúc</Text>
-            <input
-              type="datetime-local"
+              onChange={(date) => setForm(prev => ({ ...prev, startTime: toDate(date) }))}
+              required
+          />
+
+          <DateTimePicker
+              label="Thời gian kết thúc"
+              placeholder="Chọn thời gian kết thúc"
               value={form.endTime}
-              onChange={(event) => {
-                const value = event.currentTarget.value;
-                setForm(prev => ({ ...prev, endTime: value }));
-              }}
-              style={{ width: '100%', height: 36, padding: '0 12px' }}
-            />
-          </div>
+              onChange={(date) => setForm(prev => ({ ...prev, endTime: toDate(date) }))}
+              required
+          />
           <NumberInput
             label="Số tín chỉ tối đa"
             value={form.maxCredits}
@@ -640,6 +636,34 @@ export function EnrollmentPeriodsPage() {
           <Button color="red" onClick={handleDelete} loading={deleting}>
             Xóa
           </Button>
+        </Group>
+      </Modal>
+
+      <Modal
+        opened={cancelingEnrollmentId !== null}
+        onClose={() => setCancelingEnrollmentId(null)}
+        title="Xác nhận hủy đăng ký"
+        centered
+      >
+        <Text mb="lg">Bạn có chắc chắn muốn hủy đăng ký học này không?</Text>
+        <Group justify="flex-end">
+          <Button variant="subtle" onClick={() => setCancelingEnrollmentId(null)} disabled={canceling}>Hủy</Button>
+          <Button color="red" onClick={handleCancelConfirm} loading={canceling}>Xác nhận hủy</Button>
+        </Group>
+      </Modal>
+
+      <Modal
+        opened={confirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
+        title="Xác nhận toàn bộ đăng ký học kỳ"
+        centered
+      >
+        <Text mb="lg">
+          Bạn có chắc chắn muốn xác nhận toàn bộ đăng ký học của học kỳ này không? Hành động này không thể hoàn tác.
+        </Text>
+        <Group justify="flex-end">
+          <Button variant="subtle" onClick={() => setConfirmModalOpen(false)} disabled={confirming}>Hủy</Button>
+          <Button color="green" onClick={handleConfirmEnrollments} loading={confirming}>Xác nhận</Button>
         </Group>
       </Modal>
     </div>
