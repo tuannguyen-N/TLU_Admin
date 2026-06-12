@@ -12,7 +12,8 @@ export function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard", { replace: true });
+      const hasBackendToken = Boolean(localStorage.getItem("authToken"));
+      navigate(hasBackendToken ? "/dashboard" : "/auth/callback", { replace: true });
     }
   }, [isAuthenticated, navigate]);
 

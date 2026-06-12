@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Center, Loader, Text, Stack, Button } from "@mantine/core";
 import { API_BASE_URL } from "../../config/api";
 import { loginRequest } from "../../config/msalConfig";
+import { useRole } from "../../contexts/RoleContext";
 
 interface LoginResponse {
   code: number;
@@ -14,6 +15,8 @@ interface LoginResponse {
     avatar: string;
     accessToken: string;
     refreshToken: string;
+    role?: string;
+    roles?: string[];
   } | null;
   message: string;
 }
@@ -21,6 +24,7 @@ interface LoginResponse {
 export function AuthCallback() {
   const { instance } = useMsal();
   const navigate = useNavigate();
+  const { setRole } = useRole();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const processedRef = useRef(false);
@@ -93,22 +97,42 @@ export function AuthCallback() {
           }
         };
 
-        const jwtPayload = parseJwt(resData.data.accessToken);
-        const claimRoles: string[] = jwtPayload?.roles ?? [];
+        const jwtPayload = parseJwt(authTok);
+        const rawRoles = [
+          ...(Array.isArray(jwtPayload?.roles) ? jwtPayload.roles : []),
+          ...(Array.isArray(jwtPayload?.role) ? jwtPayload.role : jwtPayload?.role ? [jwtPayload.role] : []),
+          ...(Array.isArray(jwtPayload?.authorities) ? jwtPayload.authorities : []),
+          ...(Array.isArray(resData.data.roles) ? resData.data.roles : []),
+          ...(resData.data.role ? [resData.data.role] : []),
+        ];
 
         const priority = ['ADMIN', 'LECTURER', 'STAFF'];
-        const upper = claimRoles.map((r) => String(r).toUpperCase());
+        const upper = rawRoles.map((r) => String(r).replace(/^ROLE_/i, '').toUpperCase());
         const chosenRole = priority.find((r) => upper.includes(r)) ?? upper[0] ?? 'UNKNOWN';
 
-
         const { accessToken, refreshToken, ...userProfile } = resData.data;
+        const userInfo = {
+          ...userProfile,
+          role: chosenRole,
+        };
+
+        console.info('[AuthCallback] current user role info', {
+          email: userProfile.email,
+          name: userProfile.name,
+          microsoftId: userProfile.microsoftId,
+          responseRole: resData.data.role,
+          responseRoles: resData.data.roles,
+          jwtRoles: jwtPayload?.roles,
+          jwtRole: jwtPayload?.role,
+          jwtAuthorities: jwtPayload?.authorities,
+          normalizedRoles: upper,
+          chosenRole,
+        });
 
         localStorage.setItem("authToken", accessToken || tokenResult.accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
-        localStorage.setItem("userInfo", JSON.stringify({
-          ...userProfile,
-          role: chosenRole ?? 'UNKNOWN',
-        }));
+        if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("userInfo", JSON.stringify(userInfo));
+        setRole(chosenRole as 'ADMIN' | 'LECTURER' | 'STAFF');
         navigate("/dashboard", { replace: true });
       } catch (err) {
         console.error("Auth error:", err);
@@ -118,7 +142,7 @@ export function AuthCallback() {
     };
 
     processCallback();
-  }, [instance, navigate]);
+  }, [instance, navigate, setRole]);
 
   const handleRetry = () => {
     navigate("/login");

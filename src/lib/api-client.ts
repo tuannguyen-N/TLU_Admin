@@ -1,4 +1,4 @@
-const ADMIN_API_URL = '...';
+import { ADMIN_API_URL } from '../config/api';
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean>;
