@@ -35,7 +35,6 @@ export function AuthCallback() {
 
     const processCallback = async () => {
       try {
-        await instance.handleRedirectPromise();
         const account = instance.getActiveAccount() ?? instance.getAllAccounts()[0] ?? null;
 
         if (!account) {
@@ -51,6 +50,8 @@ export function AuthCallback() {
           ...loginRequest,
           account,
         });
+
+        console.log("MSAL access token:", tokenResult.accessToken);
 
         const response = await fetch(`${API_BASE_URL}/oauth2/login`, {
           method: "POST",
@@ -116,19 +117,6 @@ export function AuthCallback() {
           role: chosenRole,
         };
 
-        console.info('[AuthCallback] current user role info', {
-          email: userProfile.email,
-          name: userProfile.name,
-          microsoftId: userProfile.microsoftId,
-          responseRole: resData.data.role,
-          responseRoles: resData.data.roles,
-          jwtRoles: jwtPayload?.roles,
-          jwtRole: jwtPayload?.role,
-          jwtAuthorities: jwtPayload?.authorities,
-          normalizedRoles: upper,
-          chosenRole,
-        });
-
         localStorage.setItem("authToken", accessToken || tokenResult.accessToken);
         if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
         localStorage.setItem("userInfo", JSON.stringify(userInfo));
@@ -147,6 +135,8 @@ export function AuthCallback() {
   const handleRetry = () => {
     navigate("/login");
   };
+
+
 
   if (isLoading) {
     return (

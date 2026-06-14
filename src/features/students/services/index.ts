@@ -1,6 +1,45 @@
 import type { Faculty, Student } from '../types';
-import type { StudentStatus } from '../types';
 import { apiClient } from '../../../lib/api-client';
+
+export interface MajorItem {
+  id: number;
+  majorName: string;
+  majorCode: string;
+  facultyCode: string;
+  isActive: boolean;
+}
+
+export interface StudentClassItem {
+  id: number;
+  classCode: string;
+  majorName: string;
+  startYear: number;
+  studentCount: number;
+}
+
+interface MajorApiListResponse {
+  code: number;
+  message: string;
+  data: {
+    content: MajorItem[];
+    page: number;
+    size: number;
+    total_elements: number;
+    total_pages: number;
+  };
+}
+
+interface StudentClassApiListResponse {
+  code: number;
+  message: string;
+  data: {
+    content: StudentClassItem[];
+    page: number;
+    size: number;
+    total_elements: number;
+    total_pages: number;
+  };
+}
 
 interface FacultyApiResponse {
   id: number;
@@ -218,13 +257,13 @@ export interface FetchStudentsResponse {
 }
 
 export async function fetchStudentsByFaculty(params: FetchStudentsParams): Promise<FetchStudentsResponse> {
-  const { khoa = '', page = 0, size = 50 } = params;
+  const { khoa , page = 0, size = 50 } = params;
 
   const response = await apiClient<StudentApiListResponse>(
     '/students/all',
     {
       method: 'GET',
-      params: { khoa, page, size },
+      params: { ...(khoa ? { khoa } : {}), page, size },
     }
   );
 
@@ -285,6 +324,40 @@ export async function createStudent(payload: CreateStudentPayload): Promise<Stud
     }
   );
   return mapApiToStudent(response.data);
+}
+
+export async function fetchMajors(params: { khoa?: string; page?: number; size?: number } = {}): Promise<MajorItem[]> {
+  try {
+    const { khoa, page = 0, size = 100 } = params;
+    const response = await apiClient<MajorApiListResponse>(
+      '/majors/all',
+      {
+        method: 'GET',
+        params: { ...(khoa ? { khoa } : {}), page, size },
+      }
+    );
+    return response.data.content.filter(m => m.isActive);
+  } catch (error) {
+    console.error('Error fetching majors:', error);
+    return [];
+  }
+}
+
+export async function fetchStudentClasses(params: { khoa?: string; page?: number; size?: number } = {}): Promise<StudentClassItem[]> {
+  try {
+    const { khoa, page = 0, size = 100 } = params;
+    const response = await apiClient<StudentClassApiListResponse>(
+      '/student-class/all',
+      {
+        method: 'GET',
+        params: { ...(khoa ? { khoa } : {}), page, size },
+      }
+    );
+    return response.data.content;
+  } catch (error) {
+    console.error('Error fetching student classes:', error);
+    return [];
+  }
 }
 
 export async function importStudentsFromExcel(file: File): Promise<void> {

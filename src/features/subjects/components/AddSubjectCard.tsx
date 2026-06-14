@@ -272,16 +272,6 @@ export function AddSubjectCard({ onCancel, onSave }: Props) {
                 decimalScale={2}
               />
             </Grid.Col>
-            <Grid.Col span={4}>
-              <TextInput
-                label="HÌNH THỨC ĐÀO TẠO"
-                required
-                placeholder="Chính quy"
-                value="Chính quy"
-                disabled
-                classNames={{ label: classes.fieldLabel, input: classes.input }}
-              />
-            </Grid.Col>
             <Grid.Col span={6}>
               <NumberInput
                 label="SỐ GIỜ LÝ THUYẾT"

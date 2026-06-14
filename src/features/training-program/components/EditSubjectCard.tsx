@@ -1,4 +1,4 @@
-import { Button, Group, Checkbox, Select, Text, Loader, Center } from '@mantine/core';
+import { Button, Group, Checkbox, Select, Text, Loader, Center, TextInput } from '@mantine/core';
 import { IconX } from '@tabler/icons-react';
 import { useState, useEffect } from 'react';
 import type { SubjectDetail } from '../types';
@@ -12,17 +12,11 @@ interface EditSubjectCardProps {
 }
 
 export interface SubjectFormData {
-    semesterId: number;
-    isRequired: boolean;
+    semesterId: number | null;
+    isRequired: boolean | null;
     electiveGroup: string | null;
 }
 
-const electiveGroupOptions = [
-    { value: '', label: 'Không thuộc nhóm tự chọn' },
-    { value: 'GROUP_1', label: 'Nhóm tự chọn 1' },
-    { value: 'GROUP_2', label: 'Nhóm tự chọn 2' },
-    { value: 'GROUP_3', label: 'Nhóm tự chọn 3' },
-];
 
 export function EditSubjectCard({ subject, onCancel, onSave }: EditSubjectCardProps) {
     const [semesterOptions, setSemesterOptions] = useState<{ value: string; label: string }[]>([]);
@@ -100,12 +94,11 @@ export function EditSubjectCard({ subject, onCancel, onSave }: EditSubjectCardPr
                         />
                     )}
 
-                    <Select
+                    <TextInput
                         label="Nhóm tự chọn"
-                        data={electiveGroupOptions}
                         value={selectedElectiveGroup}
-                        onChange={(val) => setSelectedElectiveGroup(val || '')}
-                        placeholder="Chọn nhóm tự chọn"
+                        onChange={(e) => setSelectedElectiveGroup(e.currentTarget.value)}
+                        placeholder="Nhập nhóm tự chọn"
                         size="sm"
                     />
                     <Checkbox
@@ -120,7 +113,6 @@ export function EditSubjectCard({ subject, onCancel, onSave }: EditSubjectCardPr
                     <Button
                         type="submit"
                         style={{ backgroundColor: '#111827', color: '#fff' }}
-                        disabled={semestersLoading || !selectedSemesterId}
                     >
                         Lưu thay đổi
                     </Button>

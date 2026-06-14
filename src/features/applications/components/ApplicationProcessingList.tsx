@@ -206,7 +206,8 @@ export function ApplicationProcessingList() {
               <div className={classes.detailSection}>
                 <div className={classes.detailLabel}>File đính kèm</div>
                 {selectedDetail.attachments.map((att) => {
-                  const url = `${BASE_URL}/${att.resourceType}/application/${att.fileKey}`;
+                  const url = `${BASE_URL}/${att.resourceType}/upload/${att.fileKey}`;
+                  console.log(url);
 
                   return (
                     <a

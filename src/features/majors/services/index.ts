@@ -5,7 +5,7 @@ interface MajorApiResponse {
   id: number;
   majorName: string;
   majorCode: string;
-  facultyId: number;
+  facultyCode: string;
   isActive: boolean;
 }
 
@@ -28,7 +28,7 @@ function mapApiToMajor(apiMajor: MajorApiResponse): Major {
     id: apiMajor.id,
     majorCode: apiMajor.majorCode,
     majorName: apiMajor.majorName,
-    facultyCode: String(apiMajor.facultyId),
+    facultyCode: apiMajor.facultyCode,
     isActive: apiMajor.isActive,
   };
 }
@@ -48,14 +48,14 @@ export interface FetchMajorsResponse {
 }
 
 export async function fetchMajors(params: FetchMajorsParams): Promise<FetchMajorsResponse> {
-  const { khoa = '', page = 0, size = 50 } = params;
+  const { khoa , page = 0, size = 50 } = params;
 
 
   const response = await apiClient<MajorApiListResponse>(
     '/majors/all',
     {
       method: 'GET',
-      params: { khoa, page, size },
+      params: { ...(khoa ? { khoa } : {}), page, size },
     }
   );
 

@@ -418,6 +418,8 @@ export function EditSubjectCard({ subjectId, onCancel, onSave }: Props) {
             ...(deletedEnrollmentConditionIds.length > 0 ? { deletedEnrollmentConditionIds } : {}),
         };
 
+        console.log(payload);
+
         try {
             await updateSubject(subjectId, payload);
             onSave(payload);
@@ -658,11 +660,6 @@ export function EditSubjectCard({ subjectId, onCancel, onSave }: Props) {
                                             min={1}
                                             max={group.prerequisiteSubjectIds.length || 1}
                                             classNames={{ label: classes.fieldLabel, input: classes.input }}
-                                            description={
-                                                group.prerequisiteSubjectIds.length > 0
-                                                    ? `Tối đa ${group.prerequisiteSubjectIds.length} môn đã chọn`
-                                                    : undefined
-                                            }
                                         />
                                     </Grid.Col>
 

@@ -60,6 +60,7 @@ export function EditCourseClassCard({
     selectedFaculty,
     subjects,
 }: Props) {
+    console.log("courseClass", courseClass);
     const [form, setForm] = useState({
         classCode: courseClass.classCode,
         className: courseClass.className,

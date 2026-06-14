@@ -6,9 +6,9 @@ import { DepartmentList } from './components/DepartmentList';
 import { AddFacultyCard } from './components/AddFacultyCard';
 import { useDepartments } from './hooks/useDepartments';
 import type { Faculty } from '../students/types';
-import classes from './DepartmentsPage.module.css';
+import classes from './FacultiesPage.module.css';
 
-export function DepartmentsPage() {
+export function FacultiesPage() {
   const { faculties, loading, error, reload } = useDepartments();
   const [selectedFaculty, setSelectedFaculty] = useState<Faculty | null>(null);
   const [addModalOpened, setAddModalOpened] = useState(false);
@@ -40,7 +40,7 @@ export function DepartmentsPage() {
                   onClick={() => setAddModalOpened(true)}
                   style={{ backgroundColor: '#111827', color: '#fff' }}
                 >
-                  Thêm khoa/bộ môn
+                  Thêm khoa
                 </Button>
               </Group>
             </div>

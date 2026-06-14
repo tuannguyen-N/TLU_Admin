@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { notifications } from '@mantine/notifications';
 import classes from './AddMajorCard.module.css';
 import { updateMajor } from '../services';
-import type { Major, MajorFormData } from '../types';
+import type { EditMajorFormData, Major, MajorFormData } from '../types';
 import { fetchFaculties } from '../../students/services';
 import type { Faculty } from '../../students/types';
 
@@ -19,7 +19,7 @@ interface ValidationErrors {
 }
 
 interface Props {
-  major: Major;
+  major: EditMajorFormData;
   onCancel: () => void;
   onSave: () => void;
 }
@@ -38,7 +38,7 @@ export function EditMajorCard({ major, onCancel, onSave }: Props) {
   const [form, setForm] = useState({
     majorCode: major.majorCode,
     majorName: major.majorName,
-    facultyId: null as number | null,
+    facultyId: major.facultyId,
   });
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [loading, setLoading] = useState(false);

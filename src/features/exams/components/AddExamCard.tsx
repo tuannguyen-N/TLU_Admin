@@ -43,8 +43,8 @@ const examFormatData = [
 ];
 
 const examTypeData = [
-    { value: 'FINAL', label: 'Final' },
-    { value: 'MIDTERM', label: 'Midterm' },
+    { value: 'FINAL', label: 'Thi cuối kỳ' },
+    { value: 'MIDTERM', label: 'Thi giữa kỳ' },
 ];
 
 const normalizeExamType = (value: string | null | undefined): ExamType => {
@@ -88,7 +88,7 @@ export function AddExamCard({ onCancel, onSave, semesters, subjects }: Props) {
         examRoom: '',
         examLocation: '',
         examFormat: 'Offline' as 'Online' | 'Offline',
-        examType: 'FINAL',
+        examType: '',
         note: '',
     });
     const [errors, setErrors] = useState<ValidationErrors>({});
@@ -290,7 +290,7 @@ export function AddExamCard({ onCancel, onSave, semesters, subjects }: Props) {
                                 label="LOẠI THI"
                                 data={examTypeData}
                                 value={form.examType}
-                                onChange={val => set('examType')(val || 'FINAL')}
+                                onChange={val => set('examType')(val || '')}
                                 classNames={{ label: classes.fieldLabel, input: classes.input }}
                             />
                         </Grid.Col>

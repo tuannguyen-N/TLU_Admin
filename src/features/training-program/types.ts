@@ -1,5 +1,5 @@
 export type TrainingProgramStatus = 'ACTIVE' | 'ARCHIVED';
-export type TrainingType = 'CHINH_QUY' | 'VAO_SANG' | 'TU_TAO';
+export type TrainingType = 'CHINH_QUY' | 'LIEN_THONG';
 
 export interface TrainingProgram {
   id: number;

@@ -25,12 +25,6 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (parsed) {
           if (parsed.role) {
             const normalizedRole = String(parsed.role).toUpperCase() as Role;
-            console.info('[RoleContext] initialized current user role', {
-              role: normalizedRole,
-              email: parsed.email,
-              name: parsed.name,
-              microsoftId: parsed.microsoftId,
-            });
             setRoleState(normalizedRole);
             setInitialized(true);
             return;
@@ -46,7 +40,6 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const setRole = (r: Role) => {
     const normalized = r ? String(r).toUpperCase() as Role : null;
-    console.info('[RoleContext] current user role updated', { role: normalized });
     setRoleState(normalized);
     try {
       const raw = localStorage.getItem('userInfo');

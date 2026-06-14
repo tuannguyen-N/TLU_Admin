@@ -13,6 +13,7 @@ import {
   Stack,
   Tabs,
   Text,
+  TextInput,
   Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
@@ -31,12 +32,11 @@ import { useFacultiesSelect } from './hooks/useFacultySelect';
 import { useStudentsSelect } from './hooks/useStudentsSelect';
 import type { EnrollmentPeriod, EnrollmentPeriodFormData, StudentEnrollmentFilter } from './types';
 import classes from './EnrollmentPeriodsPage.module.css';
-import { DateTimePicker } from '@mantine/dates';
 
 interface FormState {
   semesterId: string;
-  startTime: Date | null;
-  endTime: Date | null;
+  startTime: string;
+  endTime: string;
   maxCredits: number | '';
 }
 
@@ -73,8 +73,8 @@ function getEnrollmentStatus(status: string) {
 function toForm(period: EnrollmentPeriod): FormState {
   return {
     semesterId: String(period.semesterId),
-    startTime: period.startTime ? new Date(period.startTime) : null,
-    endTime: period.endTime ? new Date(period.endTime) : null,
+    startTime: period.startTime,
+    endTime: period.endTime,
     maxCredits: period.maxCredits,
   };
 }
@@ -82,8 +82,8 @@ function toForm(period: EnrollmentPeriod): FormState {
 function toPayload(form: FormState): EnrollmentPeriodFormData {
   return {
     semesterId: Number(form.semesterId),
-    startTime: fromDateValue(form.startTime),
-    endTime: fromDateValue(form.endTime),
+    startTime: form.startTime,
+    endTime: form.endTime,
     maxCredits: Number(form.maxCredits),
   };
 }
@@ -190,7 +190,7 @@ export function EnrollmentPeriodsPage() {
     if (!form.semesterId || !form.startTime || !form.endTime || form.maxCredits === '') {
       return 'Vui lòng nhập đầy đủ thông tin đợt đăng ký';
     }
-    if (form.startTime.getTime() >= form.endTime.getTime()) {
+    if (new Date(form.startTime) >= new Date(form.endTime)) {
       return 'Thời gian bắt đầu phải trước thời gian kết thúc';
     }
     if (Number(form.maxCredits) <= 0) {
@@ -298,10 +298,29 @@ export function EnrollmentPeriodsPage() {
     }
   };
 
-  const toDate = (val: unknown): Date | null => {
-    if (!val) return null;
-    if (val instanceof Date) return val;
-    return new Date(val as string);
+  const toLocalInput = (value: string | Date | null): string => {
+    if (!value) return '';
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return '';
+
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    return (
+      d.getFullYear() +
+      '-' +
+      pad(d.getMonth() + 1) +
+      '-' +
+      pad(d.getDate()) +
+      'T' +
+      pad(d.getHours()) +
+      ':' +
+      pad(d.getMinutes())
+    );
+  };
+
+  const fromLocalInput = (value: string): string => {
+    if (!value) return '';
+    return new Date(value).toISOString();
   };
 
 
@@ -587,20 +606,30 @@ export function EnrollmentPeriodsPage() {
             disabled={semestersLoading}
             required
           />
-          <DateTimePicker
-              label="Thời gian bắt đầu"
-              placeholder="Chọn thời gian bắt đầu"
-              value={form.startTime}
-              onChange={(date) => setForm(prev => ({ ...prev, startTime: toDate(date) }))}
-              required
+          <TextInput
+            label="Thời gian bắt đầu"
+            type="datetime-local"
+            value={form.startTime ? toLocalInput(form.startTime) : ''}
+            onChange={(e) =>
+              setForm(prev => ({
+                ...prev,
+                startTime: fromLocalInput(e.target.value)
+              }))
+            }
+            required
           />
 
-          <DateTimePicker
-              label="Thời gian kết thúc"
-              placeholder="Chọn thời gian kết thúc"
-              value={form.endTime}
-              onChange={(date) => setForm(prev => ({ ...prev, endTime: toDate(date) }))}
-              required
+          <TextInput
+            label="Thời gian kết thúc"
+            type="datetime-local"
+            value={form.endTime ? toLocalInput(form.endTime) : ''}
+            onChange={(e) =>
+              setForm(prev => ({
+                ...prev,
+                endTime: fromLocalInput(e.target.value)
+              }))
+            }
+            required
           />
           <NumberInput
             label="Số tín chỉ tối đa"

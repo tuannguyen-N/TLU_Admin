@@ -20,12 +20,6 @@ export interface SubjectFormData {
     electiveGroup: string | null;
 }
 
-const electiveGroupOptions = [
-    { value: '', label: 'Không thuộc nhóm tự chọn' },
-    { value: 'GROUP_1', label: 'Nhóm tự chọn 1' },
-    { value: 'GROUP_2', label: 'Nhóm tự chọn 2' },
-    { value: 'GROUP_3', label: 'Nhóm tự chọn 3' },
-];
 
 export function AddSubjectCard({ semesterId, semesterName, onCancel, onSave }: AddSubjectCardProps) {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -96,7 +90,6 @@ export function AddSubjectCard({ semesterId, semesterName, onCancel, onSave }: A
                     <Select
                         label="Nhóm tự chọn"
                         name="electiveGroup"
-                        data={electiveGroupOptions}
                         placeholder="Chọn nhóm tự chọn"
                         size="sm"
                     />

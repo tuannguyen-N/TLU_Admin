@@ -11,7 +11,7 @@ import { SubjectsPage } from '../features/subjects/SubjectsPage';
 import { CourseClassesPage } from '../features/course-classes/CourseClassesPage';
 import { LecturersPage } from '../features/lecturers/LecturersPage';
 import { SemestersPage } from '../features/semesters/SemestersPage';
-import { DepartmentsPage } from '../features/departments/DepartmentsPage';
+import { FacultiesPage } from '../features/faculty-departments/FacultiesPage';
 import { StudentClassesPage } from '../features/student-classes/StudentClassesPage';
 import { NewsPage } from '../features/news/NewsPage';
 import { RequestsPage } from '../features/applications/RequestsPage';
@@ -44,7 +44,7 @@ export default function AppRoutes() {
       <Route path="/classes" element={<ProtectedRoute><CourseClassesPage /></ProtectedRoute>} />
       <Route path="/lecturers" element={<ProtectedRoute><LecturersPage /></ProtectedRoute>} />
       <Route path="/semesters" element={<ProtectedRoute><SemestersPage /></ProtectedRoute>} />
-      <Route path="/departments" element={<ProtectedRoute><DepartmentsPage /></ProtectedRoute>} />
+      <Route path="/departments" element={<ProtectedRoute><FacultiesPage /></ProtectedRoute>} />
       <Route path="/student-classes" element={<ProtectedRoute><StudentClassesPage /></ProtectedRoute>} />
       <Route path="/news" element={<ProtectedRoute><NewsPage /></ProtectedRoute>} />
       <Route path="/requests" element={<ProtectedRoute><RequestsPage /></ProtectedRoute>} />
