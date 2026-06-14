@@ -8,6 +8,7 @@ import {
 import classes from '../components/AddCourseClassCard.module.css';
 import type { Schedule } from '../types';
 import type { UpdateSchedulePayload } from '../services';
+import { TimeInput } from '@mantine/dates';
 
 interface ValidationErrors {
     dayOfWeek?: string;
@@ -88,6 +89,10 @@ export function ScheduleModal({ schedule, onCancel, onSave, loading }: Props) {
             newErrors.room = 'Phòng học là bắt buộc';
         }
 
+        if (form.startTime && form.endTime && form.startTime >= form.endTime) {
+            newErrors.endTime = 'Giờ kết thúc phải sau giờ bắt đầu';
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -96,7 +101,7 @@ export function ScheduleModal({ schedule, onCancel, onSave, loading }: Props) {
         if (!validate()) return;
 
         const payload: UpdateSchedulePayload = {
-            id: schedule?.id ?? 0,
+            ...(schedule?.id !== undefined && { id: schedule.id }),
             dayOfWeek: form.dayOfWeek,
             startPeriod: form.startPeriod,
             endPeriod: form.endPeriod,
@@ -174,23 +179,21 @@ export function ScheduleModal({ schedule, onCancel, onSave, loading }: Props) {
                             />
                         </Grid.Col>
                         <Grid.Col span={3}>
-                            <TextInput
+                            <TimeInput
                                 label="GIỜ BẮT ĐẦU"
                                 required
-                                placeholder="07:00:00"
-                                value={form.startTime}
-                                onChange={e => set('startTime')(e.target.value)}
+                                value={form.startTime?.slice(0, 5) || ''}
+                                onChange={e => set('startTime')(e.target.value + ':00')}
                                 error={errors.startTime}
                                 classNames={{ label: classes.fieldLabel, input: classes.input }}
                             />
                         </Grid.Col>
                         <Grid.Col span={3}>
-                            <TextInput
+                            <TimeInput
                                 label="GIỜ KẾT THÚC"
                                 required
-                                placeholder="09:30:00"
-                                value={form.endTime}
-                                onChange={e => set('endTime')(e.target.value)}
+                                value={form.endTime.slice(0, 5)}
+                                onChange={e => set('endTime')(e.target.value + ':00')}
                                 error={errors.endTime}
                                 classNames={{ label: classes.fieldLabel, input: classes.input }}
                             />

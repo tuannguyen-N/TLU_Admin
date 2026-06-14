@@ -3,12 +3,12 @@ import { Modal, ScrollArea } from '@mantine/core';
 import { Button, Group } from '@mantine/core';
 import { FacultyCard } from '../students/components/FacultyCard';
 import { DepartmentList } from './components/DepartmentList';
-import { AddDepartmentCard } from './components/AddDepartmentCard';
+import { AddFacultyCard } from './components/AddFacultyCard';
 import { useDepartments } from './hooks/useDepartments';
 import type { Faculty } from '../students/types';
-import classes from './DepartmentsPage.module.css';
+import classes from './FacultiesPage.module.css';
 
-export function DepartmentsPage() {
+export function FacultiesPage() {
   const { faculties, loading, error, reload } = useDepartments();
   const [selectedFaculty, setSelectedFaculty] = useState<Faculty | null>(null);
   const [addModalOpened, setAddModalOpened] = useState(false);
@@ -40,7 +40,7 @@ export function DepartmentsPage() {
                   onClick={() => setAddModalOpened(true)}
                   style={{ backgroundColor: '#111827', color: '#fff' }}
                 >
-                  Thêm khoa/bộ môn
+                  Thêm khoa
                 </Button>
               </Group>
             </div>
@@ -62,13 +62,14 @@ export function DepartmentsPage() {
       ) : (
         <DepartmentList
           faculty={selectedFaculty}
+          faculties={faculties.map(f => ({ value: String(f.id), label: f.name }))}
           onBack={() => setSelectedFaculty(null)}
           onReload={reload}
           onDepartmentUpdated={() => {
-            reload();
-            setSelectedFaculty(null);
+              reload();
+              setSelectedFaculty(null);
           }}
-        />
+      />
       )}
 
       <Modal
@@ -78,7 +79,7 @@ export function DepartmentsPage() {
         withCloseButton={false}
         scrollAreaComponent={ScrollArea.Autosize}
       >
-        <AddDepartmentCard
+        <AddFacultyCard
           onCancel={() => setAddModalOpened(false)}
           onSave={() => {
             setAddModalOpened(false);

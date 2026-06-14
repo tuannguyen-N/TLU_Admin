@@ -7,7 +7,7 @@ import {
 import { useState } from 'react';
 import { notifications as mantineNotifications } from '@mantine/notifications';
 import classes from './EditExamCard.module.css';
-import type { ExamFormData, Exam, SemesterOption, SubjectOption } from '../types';
+import type { ExamFormData, Exam, SemesterOption, SubjectOption, ExamType } from '../types';
 import { updateExamAPI } from '../services';
 
 interface ValidationErrors {
@@ -49,15 +49,9 @@ const examTypeData = [
     { value: 'MIDTERM', label: 'Midterm' },
 ];
 
-const normalizeExamType = (value: string | null | undefined): string => {
-    if (!value) return 'FINAL';
-    const normalized = value.trim().toUpperCase().replace(/[-\s]/g, '_');
-
-    if (normalized === 'FINAL' || normalized === 'FINAL_EXAM' || normalized === 'FINAL-EXAM') return 'FINAL';
-    if (normalized === 'MIDTERM' || normalized === 'MIDTERM_EXAM' || normalized === 'MIDTERM-EXAM') return 'MIDTERM';
-
-    const existing = examTypeData.find((item) => item.value.toUpperCase() === normalized);
-    return existing?.value ?? 'FINAL';
+const normalizeExamType = (value: string | null | undefined): ExamType => {
+    if (value === 'MIDTERM') return 'MIDTERM';
+    return 'FINAL';
 };
 
 const formatDateToApi = (date: Date | null): string => {

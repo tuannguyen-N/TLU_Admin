@@ -207,14 +207,12 @@ export function AddSubjectToProgramCard({ studyProgramId, onCancel, onSave }: Ad
           nothingFoundMessage="Không tìm thấy học kỳ"
         />
 
-        <Select
+        <TextInput
           label="NHÓM TỰ CHỌN"
-          placeholder="Chọn nhóm tự chọn (không bắt buộc)"
-          data={electiveGroupOptions}
-          value={electiveGroup}
-          onChange={val => setElectiveGroup(val)}
+          placeholder="Nhập nhóm tự chọn (không bắt buộc)"
+          value={electiveGroup ?? ''}
+          onChange={(e) => setElectiveGroup(e.target.value)}
           disabled={saving}
-          clearable
         />
 
         <Checkbox

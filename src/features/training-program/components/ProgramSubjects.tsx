@@ -191,7 +191,10 @@ export function ProgramSubjects({
                                                                     variant="subtle"
                                                                     color="yellow"
                                                                     size="sm"
-                                                                    onClick={() => onEditSubject(subject)}
+                                                                    onClick={() => onEditSubject({
+                                                                        ...subject,
+                                                                        semesterId: sem.semesterId,
+                                                                    })}
                                                                 >
                                                                     <IconPencil size={16} />
                                                                 </ActionIcon>

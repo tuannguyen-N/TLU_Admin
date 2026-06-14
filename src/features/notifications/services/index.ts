@@ -39,6 +39,11 @@ export async function fetchNotifications(params: { page?: number; size?: number 
     method: 'GET',
     params: { page, size },
   });
+
+  if(response.code !== 0){
+    throw new Error(response.message || 'Lấy danh sách thông báo thất bại');
+  }
+  
   const notifications: Notification[] = response.data.content.map((item): Notification => ({
     id: item.id,
     title: item.title,
@@ -65,48 +70,33 @@ interface CreateResponse {
   data: NotificationApiResponse | null;
 }
 
-export async function createNotification(payload: NotificationFormData): Promise<Notification> {
-  const response = await apiClient<CreateResponse>('/notification/send', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
-  const item = response.data;
-  if (!item) {
-    // API returns success but no data - treat as success
-    return {
-      id: 0,
-      title: payload.title,
-      content: payload.content,
-      createdBy: payload.createdBy || '',
-      targetType: payload.targetType,
-      targetIds: payload.targetIds,
-      deadLine: payload.deadLine || null,
-      isImportant: payload.isImportant,
-      referenceType: payload.referenceType || null,
-    };
-  }
-  return {
-    id: item.id,
-    title: item.title,
-    content: item.content,
-    createdBy: item.createdBy,
-    targetType: item.targetType as Notification['targetType'],
-    targetIds: item.targetIds || [],
-    deadLine: item.deadLine,
-    isImportant: item.isImportant,
-    referenceType: item.referenceType,
-  };
+export async function createNotification(payload: NotificationFormData): Promise<void> {
+    const response = await apiClient<CreateResponse>('/notification/send', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+    if (response.code !== 0) {
+        throw new Error(response.message || 'Gửi thông báo thất bại');
+    }
 }
 
 export async function updateNotification(id: number, payload: NotificationFormData): Promise<void> {
-  await apiClient(`/notification/update/${id}`, {
+  const response: any = await apiClient(`/notification/update/${id}`, {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+
+  if(response.code !== 0){
+    throw new Error(response.message || 'Cập nhật thông báo thất bại');
+  }
 }
 
 export async function deleteNotification(id: number): Promise<void> {
-  await apiClient(`/notification/delete/${id}`, {
+  const response: any = await apiClient(`/notification/delete/${id}`, {
     method: 'POST',
   });
+
+  if(response.code !== 0){
+    throw new Error(response.message || 'Xóa thông báo thất bại');
+  }
 }

@@ -70,6 +70,7 @@ export function StudentsPage() {
                 scrollAreaComponent={ScrollArea.Autosize}
             >
                 <AddStudentCard
+                    facultyCode={selectedFaculty?.facultyCode}
                     onCancel={() => setAddModalOpened(false)}
                     onSave={(data: StudentFormData) => {
                         console.log('Add student:', data);

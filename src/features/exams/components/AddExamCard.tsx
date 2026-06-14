@@ -7,7 +7,7 @@ import {
 import { useState } from 'react';
 import { notifications as mantineNotifications } from '@mantine/notifications';
 import classes from './AddExamCard.module.css';
-import type { ExamFormData, SemesterOption, SubjectOption } from '../types';
+import type { ExamFormData, ExamType, SemesterOption, SubjectOption } from '../types';
 import { createExamAPI } from '../services';
 
 interface ValidationErrors {
@@ -22,7 +22,7 @@ interface ValidationErrors {
 
 interface Props {
     onCancel: () => void;
-    onSave: (data: ExamFormData) => void;
+    onSave: (data: ExamFormData) => Promise<void>;
     semesters: SemesterOption[];
     subjects: SubjectOption[];
 }
@@ -43,9 +43,14 @@ const examFormatData = [
 ];
 
 const examTypeData = [
-    { value: 'FINAL', label: 'Final' },
-    { value: 'MIDTERM', label: 'Midterm' },
+    { value: 'FINAL', label: 'Thi cuối kỳ' },
+    { value: 'MIDTERM', label: 'Thi giữa kỳ' },
 ];
+
+const normalizeExamType = (value: string | null | undefined): ExamType => {
+    if (value === 'MIDTERM') return 'MIDTERM';
+    return 'FINAL';
+};
 
 const formatDateToApi = (date: Date | null): string => {
     if (!date) return '';
@@ -83,7 +88,7 @@ export function AddExamCard({ onCancel, onSave, semesters, subjects }: Props) {
         examRoom: '',
         examLocation: '',
         examFormat: 'Offline' as 'Online' | 'Offline',
-        examType: 'FINAL',
+        examType: '',
         note: '',
     });
     const [errors, setErrors] = useState<ValidationErrors>({});
@@ -159,17 +164,12 @@ export function AddExamCard({ onCancel, onSave, semesters, subjects }: Props) {
             examRoom: form.examRoom.trim(),
             examLocation: form.examLocation.trim() || undefined,
             examFormat: form.examFormat,
-            examType: form.examType || undefined,
+            examType: normalizeExamType(form.examType),
             note: form.note.trim() || undefined,
         };
 
         try {
-            mantineNotifications.show({
-                title: 'Thành công',
-                message: 'Tạo lịch thi thành công',
-                color: 'green',
-            });
-            onSave(payload);
+            await onSave(payload);
         } catch (err) {
             const errorMsg = err instanceof Error ? err.message : 'Đã xảy ra lỗi khi tạo lịch thi';
             setApiError(errorMsg);
@@ -290,7 +290,7 @@ export function AddExamCard({ onCancel, onSave, semesters, subjects }: Props) {
                                 label="LOẠI THI"
                                 data={examTypeData}
                                 value={form.examType}
-                                onChange={val => set('examType')(val || 'FINAL')}
+                                onChange={val => set('examType')(val || '')}
                                 classNames={{ label: classes.fieldLabel, input: classes.input }}
                             />
                         </Grid.Col>

@@ -73,7 +73,6 @@ export function MajorsPage() {
           <AddMajorCard
             onCancel={() => setAddModalOpened(false)}
             onSave={(data: MajorFormData) => {
-              console.log('Add major:', data);
               setAddModalOpened(false);
               reload();
             }}
@@ -81,7 +80,7 @@ export function MajorsPage() {
         )}
         {editingMajor && (
           <EditMajorCard
-            major={editingMajor}
+            major={{ ...editingMajor, facultyId: faculties.find(f => f.facultyCode === editingMajor.facultyCode)?.id ?? null }}
             onCancel={() => setEditingMajor(null)}
             onSave={() => {
               setEditingMajor(null);

@@ -188,7 +188,7 @@ export function EditNewsCard({ news, onCancel, onSave }: Props) {
             <Grid.Col span={6}>
               <TextInput
                 label="NGÀY ĐĂNG"
-                type="datetime-local"
+                type="date"
                 value={form.publishDate}
                 onChange={e => set('publishDate')(e.target.value)}
                 error={errors.publishDate}

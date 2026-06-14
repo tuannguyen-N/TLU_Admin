@@ -6,6 +6,7 @@ import { fetchApplicationDetail, updateApplicationStatus, deleteApplication } fr
 import { notifications } from '@mantine/notifications';
 import type { Application, ApplicationDetail, ApplicationStatus } from '../types';
 import classes from './ApplicationProcessingList.module.css';
+import { Pagination } from '@mantine/core';
 
 const BASE_URL = import.meta.env.VITE_CLOUDINARY_BASE_URL;
 
@@ -36,10 +37,6 @@ export function ApplicationProcessingList() {
   const handleRefresh = () => {
     reload();
   };
-
-  useEffect(() => {
-    console.log("BASE_URL:", import.meta.env.VITE_CLOUDINARY_BASE_URL);
-  }, []);
 
   const handleViewDetail = async (app: Application) => {
     setLoadingDetail(true);
@@ -157,10 +154,12 @@ export function ApplicationProcessingList() {
 
           {totalPages > 1 && (
             <div className={classes.paginationWrapper}>
-              <Button.Group>
-                <Button size="xs" variant="subtle" disabled={page === 0} onClick={() => setPage(page - 1)}>Trước</Button>
-                <Button size="xs" variant="subtle" disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}>Sau</Button>
-              </Button.Group>
+              <Pagination
+                value={page + 1}
+                onChange={(p) => setPage(p - 1)}
+                total={totalPages}
+                size="sm"
+              />
             </div>
           )}
         </>
@@ -207,7 +206,8 @@ export function ApplicationProcessingList() {
               <div className={classes.detailSection}>
                 <div className={classes.detailLabel}>File đính kèm</div>
                 {selectedDetail.attachments.map((att) => {
-                  const url = `${BASE_URL}/raw/application/${att.fileKey}`;
+                  const url = `${BASE_URL}/${att.resourceType}/upload/${att.fileKey}`;
+                  console.log(url);
 
                   return (
                     <a

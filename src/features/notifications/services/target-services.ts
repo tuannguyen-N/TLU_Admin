@@ -18,11 +18,15 @@ interface StudentListResponse {
   };
 }
 
-export async function fetchStudents(page = 0, size = 50): Promise<StudentResponse[]> {
+export async function fetchStudents(page = 0, size = 100): Promise<StudentResponse[]> {
   const response = await apiClient<StudentListResponse>('/students/all', {
     method: 'GET',
     params: { page, size },
   });
+
+  if(response.code !== 0){
+    throw new Error(response.message || 'Lấy danh sách sinh viên thất bại');
+  }
   return response.data.content;
 }
 
@@ -49,6 +53,10 @@ export async function fetchFaculties(page = 0, size = 100): Promise<FacultyRespo
     method: 'GET',
     params: { page, size },
   });
+
+  if(response.code !== 0){
+    throw new Error(response.message || 'Lấy danh sách khoa thất bại');
+  }
   return response.data.content;
 }
 
@@ -76,6 +84,10 @@ export async function fetchStudentClasses(page = 0, size = 100): Promise<Student
     method: 'GET',
     params: { page, size },
   });
+
+  if(response.code !== 0){
+    throw new Error(response.message || 'Lấy danh sách lớp học thất bại');
+  }
   return response.data.content;
 }
 
@@ -106,5 +118,9 @@ export async function fetchCourseClasses(page = 0, size = 100): Promise<CourseCl
     method: 'GET',
     params: { page, size },
   });
+
+  if(response.code !== 0){
+    throw new Error(response.message || 'Lấy danh sách lớp học thất bại');
+  }
   return response.data.content;
 }

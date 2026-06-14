@@ -13,9 +13,9 @@ interface DepartmentItem {
   isActive: boolean;
 }
 
-interface FacultyOption {
-  value: string; // faculty.id as string (for Select)
-  label: string; // faculty.name
+export interface FacultyOption {
+  value: string;
+  label: string;
 }
 
 interface ValidationErrors {
@@ -27,11 +27,12 @@ interface ValidationErrors {
 interface Props {
   department: DepartmentItem;
   currentFacultyId: number;
+  faculties: FacultyOption[];
   onCancel: () => void;
   onSave: () => void;
 }
 
-export function EditSubDepartmentCard({ department, currentFacultyId, onCancel, onSave }: Props) {
+export function EditSubDepartmentCard({ department, currentFacultyId, faculties, onCancel, onSave }: Props) {
   const [form, setForm] = useState({
     departmentCode: department.departmentCode,
     departmentName: department.departmentName,
@@ -40,28 +41,6 @@ export function EditSubDepartmentCard({ department, currentFacultyId, onCancel, 
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-
-  const [faculties, setFaculties] = useState<FacultyOption[]>([]);
-  const [facultiesLoading, setFacultiesLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchFaculties = async () => {
-      setFacultiesLoading(true);
-      try {
-        const data = await getFaculties();
-        setFaculties(
-          data
-            .filter((f) => f.isActive)
-            .map((f) => ({ value: String(f.id), label: f.facultyName }))
-        );
-      } catch {
-        // nếu load thất bại thì Select sẽ trống, không block form
-      } finally {
-        setFacultiesLoading(false);
-      }
-    };
-    fetchFaculties();
-  }, []);
 
   const set = (key: keyof typeof form) => (val: string) => {
     setForm(prev => ({ ...prev, [key]: val }));
@@ -143,12 +122,11 @@ export function EditSubDepartmentCard({ department, currentFacultyId, onCancel, 
               <Select
                 label="KHOA"
                 required
-                placeholder={facultiesLoading ? 'Đang tải...' : 'Chọn khoa'}
+                placeholder={'Chọn khoa'}
                 data={faculties}
                 value={form.facultyId}
                 onChange={val => set('facultyId')(val ?? '')}
                 error={errors.facultyId}
-                disabled={facultiesLoading}
                 searchable
                 classNames={{ label: classes.fieldLabel, input: classes.input }}
               />

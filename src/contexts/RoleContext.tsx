@@ -24,14 +24,8 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const parsed = JSON.parse(raw as string);
         if (parsed) {
           if (parsed.role) {
-            setRoleState(String(parsed.role).toUpperCase() as Role);
-            setInitialized(true);
-            return;
-          }
-          if (parsed.roles && parsed.roles.length) {
-            const upper = parsed.roles.map((r: any) => String(r).toUpperCase());
-            const chosen = upper.includes('ADMIN') ? 'ADMIN' : (upper.includes('LECTURER') ? 'LECTURER' : (upper.includes('STAFF') ? 'STAFF' : upper[0]));
-            setRoleState(chosen as Role);
+            const normalizedRole = String(parsed.role).toUpperCase() as Role;
+            setRoleState(normalizedRole);
             setInitialized(true);
             return;
           }
@@ -67,7 +61,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // match by longest prefix key: check if path starts with key
     const entries = Object.entries(permissions.pages).sort((a, b) => b[0].length - a[0].length);
     for (const [key, roles] of entries) {
-      if (p === key || p.startsWith(key + '/') || p.startsWith(key + '?') || p.startsWith(key)) {
+      if (p === key || p.startsWith(key + '/') || p.startsWith(key + '?')) {
         return roles.includes(role);
       }
     }

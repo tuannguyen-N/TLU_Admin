@@ -21,7 +21,7 @@ interface Props {
   onSave: () => void;
 }
 
-export function EditDepartmentCard({ faculty, onCancel, onSave }: Props) {
+export function EditFacultyCard({ faculty, onCancel, onSave }: Props) {
   const [form, setForm] = useState({
     facultyCode: faculty.facultyCode,
     facultyName: faculty.name,

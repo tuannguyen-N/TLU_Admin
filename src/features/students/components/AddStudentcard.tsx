@@ -1,16 +1,13 @@
 import {
-  TextInput, Select, Button, Group, Stack, Grid, Textarea, Alert
+  TextInput, Select, Button, Group, Stack, Grid, Textarea, Alert, Loader, Text
 } from '@mantine/core';
-import { DateInput } from '@mantine/dates';
-import { notifications } from '@mantine/notifications';
 import {
   IconFingerprint, IconBook2, IconId,
   IconAddressBook, IconAlertCircle, IconX, IconDeviceFloppy
 } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import classes from '../components/Addstudetncard.module.css';
-import { createStudent, type CreateStudentPayload } from '../services';
-import { DatePickerInput } from '@mantine/dates';
+import { createStudent, fetchMajors, fetchStudentClasses, type CreateStudentPayload, type MajorItem, type StudentClassItem } from '../services';
 
 interface ValidationErrors {
   studentCode?: string;
@@ -27,12 +24,13 @@ interface ValidationErrors {
 interface Props {
   onCancel: () => void;
   onSave: (data: StudentFormData) => void;
+  facultyCode?: string;
 }
 
 export interface StudentFormData {
   studentCode: string;
   fullName: string;
-  dateOfBirth: Date | null;
+  dateOfBirth: string | null;
   gender: string;
   trainingSystem: string;
   classCode: string;
@@ -43,7 +41,7 @@ export interface StudentFormData {
   endYear: string;
   cardNumber: string;
   cardType: string;
-  issueDate: Date | null;
+  issueDate: string | null;
   issuePlace: string;
   phone: string;
   email: string;
@@ -64,11 +62,11 @@ const SectionTitle = ({ icon: Icon, number, title }: { icon: any; number: number
   </div>
 );
 
-export function AddStudentCard({ onCancel, onSave }: Props) {
+export function AddStudentCard({ onCancel, onSave, facultyCode }: Props) {
   const [form, setForm] = useState<StudentFormData>({
     studentCode: '',
     fullName: '',
-    dateOfBirth: null,
+    dateOfBirth: '',
     gender: 'NAM',
     trainingSystem: 'CHINH_QUY',
     classCode: '',
@@ -79,7 +77,7 @@ export function AddStudentCard({ onCancel, onSave }: Props) {
     endYear: '',
     cardNumber: '',
     cardType: 'CCCD',
-    issueDate: null,
+    issueDate: '',
     issuePlace: '',
     phone: '',
     email: '',
@@ -92,6 +90,52 @@ export function AddStudentCard({ onCancel, onSave }: Props) {
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+
+  // --- Data for Mã Ngành & Mã Lớp selects ---
+  const [majors, setMajors] = useState<MajorItem[]>([]);
+  const [classes_list, setClassesList] = useState<StudentClassItem[]>([]);
+  const [majorsLoading, setMajorsLoading] = useState(false);
+  const [classesLoading, setClassesLoading] = useState(false);
+
+  // Search state for major & class
+  const [majorSearch, setMajorSearch] = useState('');
+  const [classSearch, setClassSearch] = useState('');
+
+  useEffect(() => {
+    setMajorsLoading(true);
+    fetchMajors({ khoa: facultyCode, size: 200 })
+      .then(setMajors)
+      .catch(() => setMajors([]))
+      .finally(() => setMajorsLoading(false));
+
+    setClassesLoading(true);
+    fetchStudentClasses({ khoa: facultyCode, size: 200 })
+      .then(setClassesList)
+      .catch(() => setClassesList([]))
+      .finally(() => setClassesLoading(false));
+  }, [facultyCode]);
+
+  // Build Select data options
+  const majorOptions = useMemo(
+    () =>
+      majors
+        .filter(m => m.majorCode)
+        .map(m => ({
+          value: String(m.majorCode),
+          label: `${m.majorCode} – ${m.majorName}`,
+        })),
+    [majors]
+  );
+
+  const classOptions = useMemo(() =>
+    classes_list
+      .filter(c => c.classCode)
+      .map(c => ({
+        value: String(c.classCode),
+        label: `${c.classCode}`,
+      })),
+    [classes_list]
+  );
 
   const set = (key: keyof StudentFormData) => (val: any) => {
     setForm(prev => ({ ...prev, [key]: val }));
@@ -142,16 +186,6 @@ export function AddStudentCard({ onCancel, onSave }: Props) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const formatDate = (date: Date | null): string => {
-    if (!date) return '';
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return '';
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
   const handleSave = async () => {
     if (!validate()) return;
 
@@ -163,7 +197,7 @@ export function AddStudentCard({ onCancel, onSave }: Props) {
     const payload: CreateStudentPayload = {
       studentCode: form.studentCode.trim() || null,
       fullName: form.fullName.trim() || null,
-      dateOfBirth: formatDate(form.dateOfBirth) || null,
+      dateOfBirth: form.dateOfBirth || null,
       gender: form.gender,
       studentClassCode: form.classCode.trim() || null,
       majorCode: form.majorCode.trim() || null,
@@ -173,7 +207,7 @@ export function AddStudentCard({ onCancel, onSave }: Props) {
       identityCard: {
         cardNumber: form.cardNumber.trim() || null,
         cardType: form.cardType,
-        issuedDate: formatDate(form.issueDate) || null,
+        issuedDate: form.issueDate || null,
         issuedPlace: form.issuePlace.trim() || null,
       },
       contact: {
@@ -238,13 +272,11 @@ export function AddStudentCard({ onCancel, onSave }: Props) {
               />
             </Grid.Col>
             <Grid.Col span={4}>
-              <DateInput
+              <TextInput
                 label="NGÀY SINH"
-                required
-                placeholder="mm/dd/yyyy"
+                type="date"
                 value={form.dateOfBirth}
-                onChange={set('dateOfBirth')}
-                error={errors.dateOfBirth}
+                onChange={e => set('dateOfBirth')(e.target.value)}
                 classNames={{ label: classes.fieldLabel, input: classes.input }}
               />
             </Grid.Col>
@@ -265,7 +297,10 @@ export function AddStudentCard({ onCancel, onSave }: Props) {
               <Select
                 label="HỆ ĐÀO TẠO"
                 required
-                data={['CHINH_QUY']}
+                data={[
+                  { value: 'CHINH_QUY', label: 'Chính quy' },
+                  { value: 'LIEN_THONG', label: 'Liên thông' },
+                ]}
                 value={form.trainingSystem}
                 onChange={val => set('trainingSystem')(val ?? 'CHINH_QUY')}
                 classNames={{ label: classes.fieldLabel, input: classes.input }}
@@ -279,24 +314,46 @@ export function AddStudentCard({ onCancel, onSave }: Props) {
           <SectionTitle icon={IconBook2} number={2} title="Thông tin học tập & Quá trình" />
           <Grid>
             <Grid.Col span={3}>
-              <TextInput
+              <Select
                 label="MÃ LỚP"
                 required
-                placeholder="KHMT2021"
-                value={form.classCode}
-                onChange={e => set('classCode')(e.target.value)}
+                searchable
+                clearable
+                placeholder={classesLoading ? 'Đang tải...' : 'Tìm lớp...'}
+                data={classOptions}
+                value={form.classCode || null}
+                onChange={val => set('classCode')(val ?? '')}
                 error={errors.classCode}
+                nothingFoundMessage="Không tìm thấy lớp"
+                rightSection={classesLoading ? <Loader size="xs" /> : undefined}
+                filter={({ options, search }) => {
+                  const s = search.toLowerCase().trim();
+                  return (options as any[]).filter(o =>
+                    o.value?.toLowerCase().includes(s) || o.label?.toLowerCase().includes(s)
+                  );
+                }}
                 classNames={{ label: classes.fieldLabel, input: classes.input }}
               />
             </Grid.Col>
             <Grid.Col span={3}>
-              <TextInput
+              <Select
                 label="MÃ NGÀNH"
                 required
-                placeholder="KHMT"
-                value={form.majorCode}
-                onChange={e => set('majorCode')(e.target.value)}
+                searchable
+                clearable
+                placeholder={majorsLoading ? 'Đang tải...' : 'Tìm ngành...'}
+                data={majorOptions}
+                value={form.majorCode || null}
+                onChange={val => set('majorCode')(val ?? '')}
                 error={errors.majorCode}
+                nothingFoundMessage="Không tìm thấy ngành"
+                rightSection={majorsLoading ? <Loader size="xs" /> : undefined}
+                filter={({ options, search }) => {
+                  const s = search.toLowerCase().trim();
+                  return (options as any[]).filter(o =>
+                    o.value?.toLowerCase().includes(s) || o.label?.toLowerCase().includes(s)
+                  );
+                }}
                 classNames={{ label: classes.fieldLabel, input: classes.input }}
               />
             </Grid.Col>
@@ -374,13 +431,15 @@ export function AddStudentCard({ onCancel, onSave }: Props) {
                     />
                   </Grid.Col>
                 </Grid>
-                <DateInput
-                  label="NGÀY CẤP"
-                  placeholder="mm/dd/yyyy"
-                  value={form.issueDate}
-                  onChange={set('issueDate')}
-                  classNames={{ label: classes.fieldLabel, input: classes.input }}
-                />
+                <Grid.Col span={6}>
+                  <TextInput
+                    label="NGÀY CẤP"
+                    type="date"
+                    value={form.issueDate}
+                    onChange={e => set('issueDate')(e.target.value)}
+                    classNames={{ label: classes.fieldLabel, input: classes.input }}
+                  />
+                </Grid.Col>
                 <Textarea
                   label="NƠI CẤP"
                   placeholder=""

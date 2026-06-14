@@ -11,3 +11,12 @@ export interface MajorFormData {
   majorName: string;
   facultyId: number;
 }
+
+export interface EditMajorFormData {
+  id: number;
+  majorCode: string;
+  majorName: string;
+  facultyId: number;
+  isActive: boolean;
+  facultyCode: string;
+}

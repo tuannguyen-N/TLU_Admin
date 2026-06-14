@@ -89,18 +89,32 @@ export async function createExamAPI(payload: ExamFormData): Promise<number> {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+
+  if (response.code !== 0) {
+    throw new Error(response.message);
+  }
   return response.data;
 }
 
 export async function updateExamAPI(id: number, payload: Partial<ExamFormData>): Promise<void> {
-  await apiClient<ApiResponse<null>>(`/exam/update/${id}`, {
+  const response = await apiClient<ApiResponse<null>>(`/exam/update/${id}`, {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+
+  if (response.code !== 0) {
+    throw new Error(response.message);
+  }
+
+
 }
 
 export async function deleteExamAPI(id: number): Promise<void> {
-  await apiClient<ApiResponse<null>>(`/exam/delete/${id}`, {
+  const response = await apiClient<ApiResponse<null>>(`/exam/delete/${id}`, {
     method: 'POST',
   });
+
+  if (response.code !== 0) {
+    throw new Error(response.message);
+  }
 }

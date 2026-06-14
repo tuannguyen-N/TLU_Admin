@@ -52,13 +52,14 @@ const data = [
 export function Navbar() {
   const { instance } = useMsal();
 
-  const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userInfo');
-    instance.logoutRedirect();
+  const clearAuthStorage = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("userInfo");
   };
 
-  const handleChangeAccount = () => {
+  const handleLogout = () => {
+    clearAuthStorage();
     instance.logoutRedirect();
   };
 
@@ -88,10 +89,6 @@ export function Navbar() {
       </div>
 
       <div className={classes.footer}>
-        <a href="#" className={classes.link} onClick={(event) => { event.preventDefault(); handleChangeAccount(); }}>
-          <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
-          <span>Change account</span>
-        </a>
         <a href="#" className={classes.link} onClick={(event) => { event.preventDefault(); handleLogout(); }}>
           <IconLogout className={classes.linkIcon} stroke={1.5} />
           <span>Logout</span>
