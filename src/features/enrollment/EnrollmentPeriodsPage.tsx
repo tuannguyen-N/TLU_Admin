@@ -47,11 +47,6 @@ const initialForm: FormState = {
   maxCredits: '',
 };
 
-function fromDateValue(date: Date | null): string {
-  if (!date) return '';
-  return date.toISOString().slice(0, 19); // "2024-01-01T08:00:00"
-}
-
 function formatDateTime(value: string): string {
   if (!value) return '-';
   return value.replace('T', ' ');
@@ -319,8 +314,7 @@ export function EnrollmentPeriodsPage() {
   };
 
   const fromLocalInput = (value: string): string => {
-    if (!value) return '';
-    return new Date(value).toISOString();
+    return value;
   };
 
 
