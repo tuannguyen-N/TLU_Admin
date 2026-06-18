@@ -28,6 +28,8 @@ import type {
 } from './types';
 import type { UpdateSchedulePayload } from './services';
 import classes from './CourseClassesPage.module.css';
+import type { SemesterOption } from '../exams/types';
+import { fetchSemesters } from '../semesters/services';
 
 export function CourseClassesPage() {
     const [selectedFaculty, setSelectedFaculty] = useState<string>('');
@@ -52,6 +54,7 @@ export function CourseClassesPage() {
     const [qrLoading, setQrLoading] = useState(false);
     const [qrError, setQrError] = useState<string | null>(null);
     const [qrOpened, setQrOpened] = useState(false);
+    const [selectedSemester, setSelectedSemester] = useState('');
 
     const {
         courseClasses,
@@ -67,7 +70,8 @@ export function CourseClassesPage() {
         departments,
         lecturers,
         subjects,
-    } = useCourseClasses(selectedFaculty);
+        semesters,
+    } = useCourseClasses(selectedFaculty, selectedSemester);
 
     // Auto-select first faculty when loaded
     useEffect(() => {
@@ -76,6 +80,7 @@ export function CourseClassesPage() {
             setFacultiesLoaded(true);
         }
     }, [faculties, selectedFaculty, facultiesLoaded]);
+
 
     const handleAddCourseClass = () => {
         setAddModalOpened(true);
@@ -356,6 +361,9 @@ export function CourseClassesPage() {
                 selectedFaculty={selectedFaculty}
                 onFacultyChange={setSelectedFaculty}
                 faculties={faculties}
+                selectedSemester={selectedSemester}
+                onSemesterChange={setSelectedSemester}
+                semesters={semesters}
             />
 
             <Modal

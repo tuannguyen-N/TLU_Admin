@@ -6,8 +6,11 @@ import type { FacultyOption, Subject } from '../../subjects/types';
 import { fetchLecturersAPI } from '../../lecturers/services';
 import type { Lecturer } from '../../lecturers/types';
 import type { DepartmentOption } from '../../subjects/types';
+import { fetchSemesters } from '../../semesters/services';
+import type { SemesterOption } from '../../exams/types';
+import type { Semester } from '../../semesters/types';
 
-export function useCourseClasses(khoa: string = '') {
+export function useCourseClasses(khoa: string = '', hocKy: string = '') {
   const [courseClasses, setCourseClasses] = useState<CourseClass[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,6 +20,7 @@ export function useCourseClasses(khoa: string = '') {
   const [departments, setDepartments] = useState<DepartmentOption[]>([]);
   const [lecturers, setLecturers] = useState<Lecturer[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [semesters, setSemesters] = useState<Semester[]>([]);
 
   useEffect(() => {
     fetchFaculties()
@@ -36,15 +40,32 @@ export function useCourseClasses(khoa: string = '') {
         setSubjects(data.subjects);
       })
       .catch((err) => console.error('[useCourseClasses] fetch subjects error:', err));
+    fetchSemesters({ page: 0, size: 20 })
+        .then((data) => setSemesters(data.semesters))
+        .catch((err) => console.error(err));
   }, []);
 
-  const loadCourseClasses = useCallback(async (facultyCode: string, pageNum: number) => {
+const loadCourseClasses = useCallback(
+  async (
+    facultyCode: string,
+    semesterCode: string,
+    pageNum: number
+  ) => {
     setLoading(true);
     setError(null);
+
     try {
-      const result = await fetchCourseClassesAPI({ khoa: facultyCode, page: pageNum, size: 10 });
-      // Filter out inactive course classes
-      const activeClasses = (result.content || []).filter((c: CourseClass) => c.isActive !== false);
+      const result = await fetchCourseClassesAPI({
+        khoa: facultyCode,
+        hocKy: semesterCode,
+        page: pageNum,
+        size: 10,
+      });
+
+      const activeClasses = (result.content || []).filter(
+        (c: CourseClass) => c.isActive !== false
+      );
+
       setCourseClasses(activeClasses);
       setTotalPages(result.totalPages || 0);
     } catch (err) {
@@ -54,51 +75,53 @@ export function useCourseClasses(khoa: string = '') {
     } finally {
       setLoading(false);
     }
-  }, []);
+  },
+  []
+);
 
-  useEffect(() => {
-    loadCourseClasses(khoa, page);
-  }, [khoa, page, loadCourseClasses]);
+useEffect(() => {
+  loadCourseClasses(khoa, hocKy, page);
+}, [khoa, hocKy, page, loadCourseClasses]);
 
   const handleDelete = useCallback(async (id: number) => {
     try {
       await deleteCourseClassAPI(id);
-      loadCourseClasses(khoa, page);
+      loadCourseClasses(khoa, hocKy, page);
     } catch (err) {
       console.error('[useCourseClasses] delete error:', err);
       throw err;
     }
-  }, [khoa, page, loadCourseClasses]);
+  }, [khoa, hocKy, page, loadCourseClasses]);
 
   const handleCreate = useCallback(
     async (payload: CourseClassFormData) => {
       try {
         await createCourseClassAPI(payload);
-        loadCourseClasses(khoa, page);
+        loadCourseClasses(khoa, hocKy, page);
         return { success: true };
       } catch (err: any) {
         return { success: false, error: err.message };
       }
     },
-    [khoa, page, loadCourseClasses]
+    [khoa, hocKy, page, loadCourseClasses]
   );
 
   const handleUpdate = useCallback(
     async (id: number, payload: CourseClassFormData) => {
       try {
         await updateCourseClassAPI(id, payload);
-        loadCourseClasses(khoa, page);
+        loadCourseClasses(khoa, hocKy, page);
         return { success: true };
       } catch (err: any) {
         return { success: false, error: err.message };
       }
     },
-    [khoa, page, loadCourseClasses]
+    [khoa, hocKy, page, loadCourseClasses]
   );
 
   const reload = useCallback(() => {
-    loadCourseClasses(khoa, page);
-  }, [khoa, page, loadCourseClasses]);
+    loadCourseClasses(khoa, hocKy, page);
+  }, [khoa, hocKy, page, loadCourseClasses]);
 
   return {
     courseClasses,
@@ -111,6 +134,7 @@ export function useCourseClasses(khoa: string = '') {
     departments,
     lecturers,
     subjects,
+    semesters,
     reload,
     handleDelete,
     handleCreate,

@@ -40,17 +40,12 @@ const SectionTitle = ({ icon: Icon, number, title }: { icon: any; number: number
   </div>
 );
 
-function parseDate(dateStr: string | null | undefined): Date | null {
-  if (!dateStr) return null;
-  const d = new Date(dateStr);
-  return isNaN(d.getTime()) ? null : d;
-}
 
 export function EditStudentCard({ student, onCancel, onSave }: Props) {
   const [form, setForm] = useState({
     studentCode: student.studentCode || '',
     fullName: student.fullName || '',
-    dateOfBirth: parseDate(student.dateOfBirth),
+    dateOfBirth: student.dateOfBirth || '',
     gender: student.gender === 'Nam' ? 'NAM' : student.gender === 'Nữ' ? 'NỮ' : 'NAM',
     trainingSystem: student.trainingType || '',
     classCode: student.classCode || '',
@@ -61,7 +56,7 @@ export function EditStudentCard({ student, onCancel, onSave }: Props) {
     endYear: String(student.endYear || ''),
     cardNumber: student.identityCard.cardNumber || '',
     cardType: student.identityCard.cardType || '',
-    issueDate: parseDate(student.identityCard.issuedDate),
+    issueDate: student.identityCard.issuedDate || '',
     issuePlace: student.identityCard.issuedPlace || '',
     phone: student.contact.phoneNumber || '',
     email: student.contact.email || '',
@@ -125,16 +120,6 @@ export function EditStudentCard({ student, onCancel, onSave }: Props) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const formatDate = (date: Date | null): string => {
-    if (!date) return '';
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return '';
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
   const buildBasicPayload = () => {
     const original = student;
     const payload: any = {};
@@ -145,8 +130,8 @@ export function EditStudentCard({ student, onCancel, onSave }: Props) {
     if (form.fullName.trim() !== (original.fullName || '')) {
       payload.fullName = form.fullName.trim();
     }
-    if (formatDate(form.dateOfBirth) !== (original.dateOfBirth || '')) {
-      payload.dateOfBirth = formatDate(form.dateOfBirth);
+    if (form.dateOfBirth !== (original.dateOfBirth || '')) {
+      payload.dateOfBirth = form.dateOfBirth;
     }
     if (form.gender !== (original.gender === 'Nam' ? 'NAM' : original.gender === 'Nữ' ? 'NỮ' : 'NAM')) {
       payload.gender = form.gender;
@@ -157,8 +142,8 @@ export function EditStudentCard({ student, onCancel, onSave }: Props) {
     if (form.cardType !== (original.identityCard.cardType || '')) {
       payload.cardType = form.cardType;
     }
-    if (formatDate(form.issueDate) !== (original.identityCard.issuedDate || '')) {
-      payload.issuedDate = formatDate(form.issueDate) || null;
+    if (form.issueDate !== (original.identityCard.issuedDate || '')) {
+      payload.issuedDate = form.issueDate || null;
     }
     if (form.issuePlace.trim() !== (original.identityCard.issuedPlace || '')) {
       payload.issuedPlace = form.issuePlace.trim();
@@ -285,14 +270,12 @@ export function EditStudentCard({ student, onCancel, onSave }: Props) {
                 classNames={{ label: classes.fieldLabel, input: classes.input }}
               />
             </Grid.Col>
-            <Grid.Col span={4}>
-              <DateInput
+             <Grid.Col span={4}>
+              <TextInput
                 label="NGÀY SINH"
-                required
-                placeholder="mm/dd/yyyy"
+                type="date"
                 value={form.dateOfBirth}
-                onChange={set('dateOfBirth')}
-                error={errors.dateOfBirth}
+                onChange={e => set('dateOfBirth')(e.target.value)}
                 classNames={{ label: classes.fieldLabel, input: classes.input }}
               />
             </Grid.Col>
@@ -422,13 +405,15 @@ export function EditStudentCard({ student, onCancel, onSave }: Props) {
                     />
                   </Grid.Col>
                 </Grid>
-                <DateInput
-                  label="NGÀY CẤP"
-                  placeholder="mm/dd/yyyy"
-                  value={form.issueDate}
-                  onChange={set('issueDate')}
-                  classNames={{ label: classes.fieldLabel, input: classes.input }}
-                />
+                <Grid.Col span={6}>
+                  <TextInput
+                    label="NGÀY CẤP"
+                    type="date"
+                    value={form.issueDate}
+                    onChange={e => set('issueDate')(e.target.value)}
+                    classNames={{ label: classes.fieldLabel, input: classes.input }}
+                  />
+                </Grid.Col>
                 <Textarea
                   label="NƠI CẤP"
                   placeholder=""

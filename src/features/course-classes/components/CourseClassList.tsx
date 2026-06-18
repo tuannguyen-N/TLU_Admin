@@ -9,6 +9,8 @@ import { useState } from 'react';
 import type { CourseClass } from '../types';
 import type { FacultyOption } from '../../subjects/types';
 import classes from './CourseClassList.module.css';
+import type { SemesterOption } from '../../exams/types';
+import type { Semester } from '../../semesters/types';
 
 interface Props {
     courseClasses: CourseClass[];
@@ -25,6 +27,9 @@ interface Props {
     selectedFaculty: string;
     onFacultyChange: (f: string) => void;
     faculties: FacultyOption[];
+    selectedSemester: string;
+    onSemesterChange: (s: string) => void;
+    semesters: Semester[];
 }
 
 export function CourseClassList({
@@ -32,7 +37,8 @@ export function CourseClassList({
     page, totalPages,
     onPage, onReload, onAddCourseClass, onEditCourseClass,
     onViewCourseClass,
-    onDeleteConfirm, selectedFaculty, onFacultyChange, faculties,
+    onDeleteConfirm, selectedFaculty, onFacultyChange, faculties, selectedSemester,
+    onSemesterChange, semesters
 }: Props) {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deletingCourseClass, setDeletingCourseClass] = useState<CourseClass | null>(null);
@@ -78,6 +84,18 @@ export function CourseClassList({
                         data={faculties.map(f => ({ value: f.value, label: f.label }))}
                         value={selectedFaculty}
                         onChange={(v) => v && onFacultyChange(v)}
+                        required
+                        size="sm"
+                        style={{ width: 200 }}
+                    />
+                    <Select
+                        placeholder="Chọn học kỳ"
+                        data={semesters.map(s => ({
+                            value: s.semesterCode,
+                            label: s.semesterName,
+                        })) || []}
+                        value={selectedSemester}
+                        onChange={(v) => v && onSemesterChange(v)}
                         required
                         size="sm"
                         style={{ width: 200 }}

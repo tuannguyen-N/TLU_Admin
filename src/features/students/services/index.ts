@@ -315,6 +315,12 @@ interface CreateStudentResponse {
   data: StudentApiResponse;
 }
 
+export interface ImportStudentSummary {
+  total: number;
+  success: number;
+  failed: number;
+}
+
 export async function createStudent(payload: CreateStudentPayload): Promise<Student> {
   const response = await apiClient<CreateStudentResponse>(
     '/students/create',
@@ -360,26 +366,27 @@ export async function fetchStudentClasses(params: { khoa?: string; page?: number
   }
 }
 
-export async function importStudentsFromExcel(file: File): Promise<void> {
+export async function importStudentsFromExcel(file: File): Promise<ImportStudentSummary> {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch(`${import.meta.env.VITE_API_DOMAIN || ''}/api/v1/admin/students/import`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInJvbGVzIjpudWxsLCJzaWduIjpudWxsLCJpYXQiOjE3NzU3OTMxNTc1NzksImV4cCI6MTc3NTc5Njc1NzU3OX0.OcuqDvFuHymaB9AB9bHgaAGY04DlYL6pUjKqJWMb328`,
-    },
-    body: formData,
-  });
+  const response = await apiClient<{
+    code: number;
+    message: string;
+    data: ImportStudentSummary;
+  }>(
+    '/students/import',
+    {
+      method: 'POST',
+      body: formData,
+    }
+  );
 
-  if (!response.ok) {
-    const text = await response.text();
-    console.error('[API] import error:', text);
-    throw new Error(`Import failed: ${response.status}`);
+  if (response.code !== 0) {
+    throw new Error(response.message || 'Import failed');
   }
 
-  const json = await response.json();
-  return json;
+  return response.data;
 }
 
 export interface UpdateStudentBasicPayload {

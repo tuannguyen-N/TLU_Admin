@@ -34,21 +34,34 @@ interface CourseClassApiListResponse {
 
 export const fetchCourseClassesAPI = async (params: {
   khoa?: string;
+  hocKy?: string;
   page?: number;
   size?: number;
 }) => {
-  const { khoa = '', page = 0, size = 10 } = params;
+  const {
+    khoa = '',
+    hocKy = '',
+    page = 0,
+    size = 10,
+  } = params;
+
   const response = await apiClient<CourseClassApiListResponse>(
     '/course-classes/all',
     {
       method: 'GET',
-      params: { khoa, page, size },
+      params: {
+        khoa,
+        HocKy: hocKy,
+        page,
+        size,
+      },
     }
   );
 
   if (response.code !== 0) {
     throw new Error(response.message || 'Failed to fetch course classes');
   }
+
   return response.data;
 };
 

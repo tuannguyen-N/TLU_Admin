@@ -225,7 +225,7 @@ export function AcademicResultsPage() {
             >
               <option value="">-- Chọn học kỳ --</option>
               {semesters.map(s => (
-                <option key={s.id} value={s.id}>{s.semesterName} (id: {s.id})</option>
+                <option key={s.id} value={s.id}>{s.semesterName}</option>
               ))}
             </select>
           </div>
